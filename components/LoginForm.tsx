@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 
 export default function LoginForm({ invalid }: { invalid?: boolean }) {
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [needsName, setNeedsName] = useState(false);
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -60,17 +62,47 @@ export default function LoginForm({ invalid }: { invalid?: boolean }) {
 
       {sent ? (
         <p className="mt-4 text-[13px]" style={{ color: "var(--ink-secondary)" }}>
-          If that address is in the pool, your link is on its way. Check your email and
-          open the link — that&rsquo;s the whole sign-in.
+          Your link is on its way. Check your email and open it — that&rsquo;s the whole
+          sign-in.
         </p>
       ) : (
         <>
           <p className="mt-3 text-[13px]" style={{ color: "var(--ink-secondary)" }}>
             No passwords. Enter your email and we&rsquo;ll send you a personal link —
-            open it once and you&rsquo;re signed in for the season.
+            open it once and you&rsquo;re signed in for the season. New here? This is
+            how you join.
           </p>
 
+          {needsName && (
+            <p
+              className="mt-4 text-[13px] font-bold"
+              style={{ color: "var(--accent)" }}
+              role="status"
+            >
+              Welcome — what should everyone call you?
+            </p>
+          )}
+
           <form onSubmit={submit} className="mt-5 w-full">
+            {needsName && (
+              <input
+                type="text"
+                name="name"
+                id="name"
+                autoComplete="given-name"
+                required
+                autoFocus
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Your name"
+                className="mb-3 w-full rounded-[12px] px-4 py-3 text-center text-[15px] outline-none"
+                style={{
+                  border: "1.5px solid #ddd2bc",
+                  background: "var(--card)",
+                  color: "var(--ink)",
+                }}
+              />
+            )}
             <label htmlFor="email" className="sr-only">
               Email address
             </label>
@@ -110,15 +142,14 @@ export default function LoginForm({ invalid }: { invalid?: boolean }) {
               className="mt-3 w-full rounded-[12px] px-4 py-3 text-[15px] font-bold text-white disabled:opacity-60"
               style={{ background: "var(--accent)" }}
             >
-              {busy ? "Sending…" : "Email me my link"}
+              {busy ? "Sending…" : needsName ? "Join the pool" : "Email me my link"}
             </button>
           </form>
         </>
       )}
 
       <p className="mt-6 text-[11px]" style={{ color: "var(--ink-tertiary)" }}>
-        Only emails already in the pool get a link. If nothing arrives, ask Steve to add
-        you.
+        Anyone in the family can join — if nothing arrives, check your spam folder.
       </p>
     </main>
   );

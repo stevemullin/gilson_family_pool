@@ -219,8 +219,11 @@ Verified live against 2026 Week 1 (16 events returned) and a completed 2025 Week
 No accounts, no passwords, no third-party auth. The design calls this a magic link; it is a
 long-lived personal link.
 
-1. A commissioner adds a member (name + email). Generate `token` as 22 URL-safe random
-   characters (`crypto.randomBytes(16).toString('base64url')`).
+1. **The pool is open — anyone can join themselves.** At `/login` an unrecognised email
+   prompts once for a name and creates the member; a recognised one just re-sends the
+   link. A commissioner can still add people directly from `/admin`. Either path
+   generates `token` as 22 URL-safe random characters
+   (`crypto.randomBytes(16).toString('base64url')`).
 2. The member is emailed `${SITE_URL}/join/<token>`.
 3. `app/join/[token]/page.tsx` resolves the token to a member, sets a cookie, and
    **redirects to `/`** so the secret leaves the address bar immediately and does not
@@ -248,8 +251,13 @@ long-lived personal link.
 ### Threat model
 
 Explicitly modest — this is a family pool, not a bank. Anyone holding a member's link is
-that member. What the design *does* require is that one member cannot see another's picks
-before kickoff, and §5 is what guarantees that.
+that member, and since signup is open, anyone who finds the URL can join. The deliberate
+trade is that nobody has to be manually added; the commissioner can remove anyone from
+`/admin` in one click. If unwanted signups ever appear, the smallest fix is a shared
+invite code checked in `POST /api/auth/magic-link` before the insert.
+
+What the design *does* require regardless is that one member cannot see another's picks
+before kickoff, and §5 is what guarantees that — open signup does not weaken it.
 
 ---
 
