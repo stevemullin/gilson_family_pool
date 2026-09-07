@@ -430,9 +430,12 @@ one-click un-pause next preseason.
 
 **Cloudflare DNS → Vercel.** Use a subdomain and leave the apex free:
 
-1. Vercel → Settings → Domains → add `pool.<yourdomain>`. Vercel returns a target,
-   normally `cname.vercel-dns.com`.
-2. Cloudflare → DNS → add `CNAME  pool → cname.vercel-dns.com`.
+1. Vercel → Settings → Domains → add `pool.<yourdomain>`, or
+   `vercel domains add pool.<yourdomain> <project>`. Then run
+   `vercel domains verify pool.<yourdomain>` to get the record — Vercel issues a
+   **project-specific** CNAME target (e.g. `587b78a3b0de7bfb.vercel-dns-017.com`), not
+   the generic `cname.vercel-dns.com` most guides quote. Use the one it hands you.
+2. Cloudflare → DNS → add that `CNAME` on the `pool` name.
 3. **Set the record to "DNS only" (grey cloud), not "Proxied" (orange).** This is the one
    real gotcha: proxying Cloudflare in front of Vercel causes SSL handshake failures and
    redirect loops. Vercel issues its own certificate once the CNAME resolves.
