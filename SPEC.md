@@ -410,7 +410,12 @@ that specifically affect implementation:
 - **Ties share a rank**, rendered `T2` / `T4`, and are never broken by a secondary sort.
   This is intentional product behavior, not a gap.
 - **Artboard 1b is the rejected alternate** ballot card. Reference only — do not build it.
-- **Dark mode** via `prefers-color-scheme` plus a manual override toggle.
+- **Light only — no dark mode.** The handoff's artboard 1j specifies a warm brown-black
+  dark palette. It was built exactly to those tokens, but at full-screen size it read as
+  muddy brown instead of the warm cream the design is built on, so it was removed and the
+  page is pinned to light with `color-scheme: light`. This is a deliberate departure from
+  the canvas; re-adding it means restoring 1j's tokens plus a `prefers-color-scheme`
+  block (see git history).
 
 ---
 
