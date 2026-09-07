@@ -20,12 +20,23 @@ async function send(to: string, subject: string, text: string) {
     console.warn(`[email] RESEND_API_KEY unset; would have emailed ${to}: ${subject}`);
     return false;
   }
-  await resend.emails.send({
+  // The Resend SDK resolves with { data, error } and does NOT throw on API errors —
+  // a rejected send looks exactly like a successful one unless you inspect `error`.
+  const { data, error } = await resend.emails.send({
     from: process.env.MAIL_FROM!,
     to,
     subject,
     text,
   });
+
+  if (error) {
+    console.error(
+      `[email] Resend rejected the send to ${to}: ${error.name} — ${error.message}`
+    );
+    return false;
+  }
+
+  console.log(`[email] sent to ${to} (id ${data?.id})`);
   return true;
 }
 
