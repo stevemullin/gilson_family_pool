@@ -1,19 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function LoginForm({ invalid }: { invalid?: boolean }) {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Password managers and iOS Keychain can fill the field before React has
+  // hydrated, which leaves the controlled state empty. Pick that value up once
+  // on mount so the first render doesn't wipe it.
+  useEffect(() => {
+    const filled = inputRef.current?.value;
+    if (filled) setEmail(filled);
+  }, []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    // Read the field itself, so an autofill that skipped React's change event
+    // still submits the address the user can see.
+    const value = (inputRef.current?.value ?? email).trim();
     setBusy(true);
     await fetch("/api/auth/magic-link", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email: value }),
     });
     setBusy(false);
     setSent(true);
@@ -59,9 +71,26 @@ export default function LoginForm({ invalid }: { invalid?: boolean }) {
           </p>
 
           <form onSubmit={submit} className="mt-5 w-full">
+            <label htmlFor="email" className="sr-only">
+              Email address
+            </label>
+            {/* type="text" rather than "email": iOS turns off autocorrect for
+                email inputs, and text-replacement shortcuts ride on autocorrect.
+                inputMode keeps the @ key on the keyboard, and the pattern plus
+                the server's own check cover validation. */}
             <input
-              type="email"
+              ref={inputRef}
+              type="text"
+              id="email"
+              name="email"
               required
+              pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
+              title="Enter an email address, like you@example.com"
+              inputMode="email"
+              autoComplete="email"
+              autoCorrect="on"
+              autoCapitalize="none"
+              enterKeyHint="send"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
