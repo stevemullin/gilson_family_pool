@@ -105,11 +105,17 @@ export default function PickCard({
     const shared =
       "flex min-h-[62px] flex-1 items-center gap-2 px-3 py-2 text-left transition-opacity";
 
+    // The outer corners have to follow the card, or the wash and ring paint a square
+    // block inside the rounded card and leave slivers at the corners. 13px = the card's
+    // 14px radius less its 1px border.
+    const radius =
+      side === "away" ? "13px 0 0 13px" : "0 13px 13px 0";
+
     if (locked) {
       return (
         <div
           className={shared}
-          style={{ background, boxShadow: ring, opacity }}
+          style={{ background, boxShadow: ring, opacity, borderRadius: radius }}
         >
           {inner}
         </div>
@@ -123,7 +129,7 @@ export default function PickCard({
         aria-pressed={picked}
         aria-label={`Pick ${abbr}`}
         className={`${shared} cursor-pointer`}
-        style={{ background, boxShadow: ring, opacity }}
+        style={{ background, boxShadow: ring, opacity, borderRadius: radius }}
       >
         {inner}
       </button>
