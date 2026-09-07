@@ -308,8 +308,6 @@ Route names follow the design handoff's API sketch so the contract matches the U
 |---|---|
 | `GET /api/week/:n` | Games + my picks + privacy-filtered pool pick status |
 | `PUT /api/pick` | `{gameId, team}` → save/switch. **409** if kicked off |
-| `GET /api/grid/:week` | Grid rows: member, week points, season points, per-game cells |
-| `GET /api/standings` | Tie-aware ranks, name, record |
 | `POST /api/auth/magic-link` | `{email}` → re-send personal link |
 | `POST /api/members` | Admin: add member (generates token, sends link) |
 | `POST /api/members/:id/resend` | Admin: re-send that member's link |
