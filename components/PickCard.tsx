@@ -179,6 +179,8 @@ export default function PickCard({
     return null;
   }
 
+  const centerContent = center();
+
   const others = poolPicks.filter((p) => p.hasPicked);
   const revealed = others.filter(
     (p): p is Extract<PoolPick, { pickedAbbr: string }> => "pickedAbbr" in p
@@ -198,15 +200,28 @@ export default function PickCard({
     >
       <div className="flex items-stretch">
         {half("away")}
-        <div
-          className="flex w-[58px] shrink-0 flex-col items-center justify-center px-1"
-          style={{
-            borderLeft: "1px solid var(--hairline)",
-            borderRight: "1px solid var(--hairline)",
-          }}
-        >
-          {center()}
-        </div>
+        {/*
+          The centre column only earns its width when it has state to show. Before
+          kickoff it collapses to a hairline so the two halves aren't split by an empty
+          gutter. Games in a group share a kickoff, so widths stay consistent per group.
+        */}
+        {centerContent === null ? (
+          <div
+            className="w-px shrink-0"
+            style={{ background: "var(--hairline)" }}
+            aria-hidden
+          />
+        ) : (
+          <div
+            className="flex w-[58px] shrink-0 flex-col items-center justify-center px-1"
+            style={{
+              borderLeft: "1px solid var(--hairline)",
+              borderRight: "1px solid var(--hairline)",
+            }}
+          >
+            {centerContent}
+          </div>
+        )}
         {half("home")}
       </div>
 
