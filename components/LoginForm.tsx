@@ -9,27 +9,57 @@ export default function LoginForm({ invalid }: { invalid?: boolean }) {
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const nameRef = useRef<HTMLInputElement>(null);
 
-  // Password managers and iOS Keychain can fill the field before React has
-  // hydrated, which leaves the controlled state empty. Pick that value up once
-  // on mount so the first render doesn't wipe it.
+  // Password managers and iOS Keychain can fill the fields before React has
+  // hydrated, which leaves the controlled state empty. Pick those values up once
+  // on mount so the first render doesn't wipe them.
   useEffect(() => {
-    const filled = inputRef.current?.value;
-    if (filled) setEmail(filled);
+    const filledEmail = inputRef.current?.value;
+    if (filledEmail) setEmail(filledEmail);
+    const filledName = nameRef.current?.value;
+    if (filledName) setName(filledName);
   }, []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    // Read the field itself, so an autofill that skipped React's change event
-    // still submits the address the user can see.
-    const value = (inputRef.current?.value ?? email).trim();
+    // Read the fields themselves, so an autofill that skipped React's change
+    // event still submits what the user can see.
+    const address = (inputRef.current?.value ?? email).trim();
+    const displayName = (nameRef.current?.value ?? name).trim();
+
     setBusy(true);
-    await fetch("/api/auth/magic-link", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: value }),
-    });
+    setError("");
+
+    let ok = false;
+    let body: { needsName?: boolean; message?: string } = {};
+    try {
+      const res = await fetch("/api/auth/magic-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: address, name: displayName }),
+      });
+      ok = res.ok;
+      body = await res.json().catch(() => ({}));
+    } catch {
+      setBusy(false);
+      setError("Couldn't reach the pool. Check your connection and try again.");
+      return;
+    }
     setBusy(false);
+
+    // A first-time address with no name comes back as needsName — that is a
+    // failure, not a send. Showing the success screen here is what swallowed
+    // real signups.
+    if (body.needsName) {
+      setError("Add your name too — it's your first time here.");
+      nameRef.current?.focus();
+      return;
+    }
+    if (!ok) {
+      setError(body.message ?? "Something went wrong. Try again?");
+      return;
+    }
     setSent(true);
   }
 
@@ -85,6 +115,7 @@ export default function LoginForm({ invalid }: { invalid?: boolean }) {
 
           <form onSubmit={submit} className="mt-5 w-full">
             <input
+              ref={nameRef}
               type="text"
               name="name"
               id="name"
