@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 export default function LoginForm({ invalid }: { invalid?: boolean }) {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
-  const [needsName, setNeedsName] = useState(false);
+  const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -68,41 +68,37 @@ export default function LoginForm({ invalid }: { invalid?: boolean }) {
       ) : (
         <>
           <p className="mt-3 text-[13px]" style={{ color: "var(--ink-secondary)" }}>
-            No passwords. Enter your email and we&rsquo;ll send you a personal link —
-            open it once and you&rsquo;re signed in for the season. New here? This is
-            how you join.
+            No passwords. Put your name and email in and we&rsquo;ll send you a personal
+            link — open it once and you&rsquo;re signed in for the season. First time and
+            fiftieth, same two boxes.
           </p>
 
-          {needsName && (
+          {error && (
             <p
-              className="mt-4 text-[13px] font-bold"
-              style={{ color: "var(--accent)" }}
-              role="status"
+              className="mt-4 w-full rounded-[12px] px-3 py-2 text-[12px] font-bold"
+              style={{ background: "var(--wrong-bg)", color: "var(--wrong-ink)" }}
+              role="alert"
             >
-              Welcome — what should everyone call you?
+              {error}
             </p>
           )}
 
           <form onSubmit={submit} className="mt-5 w-full">
-            {needsName && (
-              <input
-                type="text"
-                name="name"
-                id="name"
-                autoComplete="given-name"
-                required
-                autoFocus
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Your name"
-                className="mb-3 w-full rounded-[12px] px-4 py-3 text-center text-[15px] outline-none"
-                style={{
-                  border: "1.5px solid #ddd2bc",
-                  background: "var(--card)",
-                  color: "var(--ink)",
-                }}
-              />
-            )}
+            <input
+              type="text"
+              name="name"
+              id="name"
+              autoComplete="given-name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Your name"
+              className="mb-3 w-full rounded-[12px] px-4 py-3 text-center text-[15px] outline-none"
+              style={{
+                border: "1.5px solid #ddd2bc",
+                background: "var(--card)",
+                color: "var(--ink)",
+              }}
+            />
             <label htmlFor="email" className="sr-only">
               Email address
             </label>
@@ -142,7 +138,7 @@ export default function LoginForm({ invalid }: { invalid?: boolean }) {
               className="mt-3 w-full rounded-[12px] px-4 py-3 text-[15px] font-bold text-white disabled:opacity-60"
               style={{ background: "var(--accent)" }}
             >
-              {busy ? "Sending…" : needsName ? "Join the pool" : "Email me my link"}
+              {busy ? "Sending…" : "Email me my link"}
             </button>
           </form>
         </>
