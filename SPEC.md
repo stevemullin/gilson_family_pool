@@ -38,16 +38,19 @@ Set in `.env.local` for development and in Vercel project settings for productio
 committed** — the GitHub repo is public.
 
 ```
-NEXT_PUBLIC_SUPABASE_URL=https://<project>.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key>
+SUPABASE_URL=https://<project>.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=<service role key>
 RESEND_API_KEY=<resend key>
 MAIL_FROM=pool@<yourdomain>
 CRON_SECRET=<random string guarding /api/cron/*>
-NEXT_PUBLIC_SITE_URL=https://pool.<yourdomain>
+SITE_URL=https://pool.<yourdomain>
 ```
 
-`NEXT_PUBLIC_SUPABASE_ANON_KEY` ends up effectively unused for data access — see §5.
+**Every variable here is server-only, and none may be renamed to `NEXT_PUBLIC_*`.** Next.js
+inlines `NEXT_PUBLIC_` values at *build* time, while Vercel injects "Secret"-typed
+variables only at *runtime*; a variable that is both compiles to `undefined` and no
+redeploy can fix it. Nothing in this app needs a Supabase credential in the browser
+anyway — all database access is server-side (§5).
 
 ---
 
@@ -224,7 +227,7 @@ long-lived personal link.
 
 1. A commissioner adds a member (name + email). Generate `token` as 22 URL-safe random
    characters (`crypto.randomBytes(16).toString('base64url')`).
-2. The member is emailed `${NEXT_PUBLIC_SITE_URL}/join/<token>`.
+2. The member is emailed `${SITE_URL}/join/<token>`.
 3. `app/join/[token]/page.tsx` resolves the token to a member, sets a cookie, and
    **redirects to `/`** so the secret leaves the address bar immediately and does not
    persist in history, screenshots, or a shared screen.

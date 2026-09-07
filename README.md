@@ -26,6 +26,7 @@ ESPN's public NFL scoreboard API.
 ```bash
 npm install
 cp .env.example .env.local   # fill in Supabase, Resend, CRON_SECRET
+# note: all vars are server-only — do not add a NEXT_PUBLIC_ prefix to any of them
 npm run dev
 ```
 

@@ -56,6 +56,6 @@ export async function POST(req: Request) {
     id: data.id,
     name: data.name,
     emailed,
-    link: `${process.env.NEXT_PUBLIC_SITE_URL}/join/${data.token}`,
+    link: `${process.env.SITE_URL}/join/${data.token}`,
   });
 }

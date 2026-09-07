@@ -7,7 +7,7 @@ function client() {
 }
 
 function joinUrl(token: string) {
-  return `${process.env.NEXT_PUBLIC_SITE_URL}/join/${token}`;
+  return `${process.env.SITE_URL}/join/${token}`;
 }
 
 /**

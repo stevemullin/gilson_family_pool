@@ -33,6 +33,6 @@ export async function POST(
 
   return NextResponse.json({
     emailed,
-    link: `${process.env.NEXT_PUBLIC_SITE_URL}/join/${member.token}`,
+    link: `${process.env.SITE_URL}/join/${member.token}`,
   });
 }
