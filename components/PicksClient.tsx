@@ -27,7 +27,9 @@ export default function PicksClient(props: Props) {
   const [poolPicks, setPoolPicks] = useState(props.poolPicks);
   const [picks, setPicks] = useState(props.myPicks);
   const [failed, setFailed] = useState<Record<string, string>>({});
+  const [justSaved, setJustSaved] = useState(false);
   const inflight = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const savedTimer = useRef<ReturnType<typeof setTimeout>>();
 
   // Reset when navigating between weeks.
   useEffect(() => {
@@ -94,7 +96,15 @@ export default function PicksClient(props: Props) {
               ...f,
               [gameId]: body.message ?? "Couldn't save that pick.",
             }));
+            return;
           }
+          // Confirm the write landed. The design called for feedback only on
+          // failure, but a first real user tapped through the week unsure
+          // whether anything was being kept, and went looking for a submit
+          // button. Silence is not reassuring.
+          clearTimeout(savedTimer.current);
+          setJustSaved(true);
+          savedTimer.current = setTimeout(() => setJustSaved(false), 1800);
         } catch {
           setFailed((f) => ({ ...f, [gameId]: "Offline — pick not saved." }));
         }
@@ -185,6 +195,15 @@ export default function PicksClient(props: Props) {
             }}
           />
         </div>
+
+        {/* Standing reassurance. The empty-state banner says this too, but it
+            disappears after the first pick — which is exactly when someone
+            starts wondering whether their taps are being kept. */}
+        {games.length > 0 && (
+          <p className="mt-[6px] text-center text-[10px]" style={{ color: "var(--ink-tertiary)" }}>
+            Picks save the moment you tap — there&rsquo;s nothing to submit.
+          </p>
+        )}
       </header>
 
       {empty && games.length > 0 && (
@@ -252,13 +271,21 @@ export default function PicksClient(props: Props) {
         </Link>
       </nav>
 
-      {remaining > 0 && games.length > 0 && (
+      {/* Always on screen while there are games — including once every pick is
+          in, which is when someone is most likely to wonder if it took. It
+          flashes a confirmation each time a write actually lands. */}
+      {games.length > 0 && (
         <div className="pointer-events-none fixed inset-x-0 bottom-4 flex justify-center px-4">
           <p
-            className="rounded-full px-4 py-2 text-[12px] font-bold text-white shadow-lg"
-            style={{ background: "#2a2318" }}
+            className="rounded-full px-4 py-2 text-[12px] font-bold text-white shadow-lg transition-colors duration-300"
+            style={{
+              background: justSaved ? "var(--correct-ink)" : "#2a2318",
+            }}
+            aria-live="polite"
           >
-            {pickedCount} of {games.length} picked · {remaining} to go
+            {justSaved ? "✓ Saved · " : ""}
+            {pickedCount} of {games.length} picked
+            {remaining > 0 ? ` · ${remaining} to go` : " · all in"}
           </p>
         </div>
       )}

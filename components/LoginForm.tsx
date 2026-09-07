@@ -98,9 +98,8 @@ export default function LoginForm({ invalid }: { invalid?: boolean }) {
       ) : (
         <>
           <p className="mt-3 text-[13px]" style={{ color: "var(--ink-secondary)" }}>
-            No passwords. Put your name and email in and we&rsquo;ll send you a personal
-            link — open it once and you&rsquo;re signed in for the season. First time and
-            fiftieth, same two boxes.
+            No passwords. Add your name and email and we&rsquo;ll send you a personal link
+            — open it once and you&rsquo;re signed in for the season.
           </p>
 
           {error && (
