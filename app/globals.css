@@ -1,0 +1,134 @@
+@import "tailwindcss";
+
+/*
+  Design tokens from design/README.md. The canvas is the authority on anything visual —
+  when it disagrees with a value here, the canvas wins.
+*/
+:root {
+  color-scheme: light;
+
+  --bg: #faf6ef;          /* app background, cream */
+  --desk: #efe9dd;        /* canvas behind cards */
+  --card: #ffffff;
+  --card-border: #e6ddcb;
+  --hairline: #f0e9da;
+  --day-rule: #e2d8c4;
+
+  --ink: #2a2318;
+  --ink-secondary: #7d6f58;
+  --ink-tertiary: #a3937a; /* overlines */
+  --ink-warm: #5b4f3e;
+
+  --accent: #31527b;       /* heritage navy */
+  --accent-hover: #24405f;
+
+  --live: #c0392b;
+  --final-chip: #8a7d66;
+
+  --correct-ink: #256a3a;
+  --correct-bg: #e4f0e7;
+  --wrong-ink: #b03a2e;
+  --wrong-bg: #f9e6e2;
+
+  --leader: #b5432a;
+
+  /* Picked-half wash strength; see lib/teams.ts teamWash(). */
+  --wash-pct: 9%;
+
+  --radius-card: 14px;
+  --radius-pill: 99px;
+  --radius-button: 12px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --bg: #211c15;
+    --desk: #1a1610;
+    --card: #2b251c;
+    --card-border: #453b2c;
+    --hairline: #38301f;
+    --day-rule: #453b2c;
+
+    --ink: #f2ead9;
+    --ink-secondary: #c9bda4;
+    --ink-tertiary: #8a7d66;
+    --ink-warm: #c9bda4;
+
+    --accent: #9db8d8;
+    --accent-hover: #b9cde6;
+
+    --live: #e05d4b;
+    --final-chip: #8a7d66;
+
+    --correct-ink: #8fd0a4;
+    --correct-bg: rgba(83, 155, 108, 0.18);
+    --wrong-ink: #e08b7c;
+    --wrong-bg: rgba(176, 58, 46, 0.18);
+
+    --leader: #e0785c;
+
+    /* Team washes need more mix to read against the dark card. */
+    --wash-pct: 26%;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #211c15;
+  --desk: #1a1610;
+  --card: #2b251c;
+  --card-border: #453b2c;
+  --hairline: #38301f;
+  --day-rule: #453b2c;
+  --ink: #f2ead9;
+  --ink-secondary: #c9bda4;
+  --ink-tertiary: #8a7d66;
+  --ink-warm: #c9bda4;
+  --accent: #9db8d8;
+  --accent-hover: #b9cde6;
+  --live: #e05d4b;
+  --final-chip: #8a7d66;
+  --correct-ink: #8fd0a4;
+  --correct-bg: rgba(83, 155, 108, 0.18);
+  --wrong-ink: #e08b7c;
+  --wrong-bg: rgba(176, 58, 46, 0.18);
+  --leader: #e0785c;
+  --wash-pct: 26%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.display {
+  font-family: var(--font-display), Georgia, serif;
+}
+
+.overline {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-tertiary);
+}
+
+/* LIVE indicator, 1.4s opacity keyframe per the design spec. */
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.live-dot {
+  animation: live-pulse 1.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .live-dot { animation: none; }
+}
+
+/* Every tappable control clears the 44px minimum from the design spec. */
+button, a[role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}
