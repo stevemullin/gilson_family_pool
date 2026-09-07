@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 interface Props {
+  adminId: string;
   adminName: string;
   week: number;
   members: Array<{ id: string; name: string; email: string }>;
@@ -38,6 +39,15 @@ export default function AdminClient(props: Props) {
     );
     setNewName("");
     setNewEmail("");
+  }
+
+  async function remove(id: string, name: string) {
+    if (!confirm(`Remove ${name} from the pool? Their picks go too.`)) return;
+    const res = await fetch(`/api/members/${id}`, { method: "DELETE" });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) return setMessage(body.message ?? "Couldn't remove that member.");
+    setMessage(`Removed ${name}.`);
+    location.reload();
   }
 
   async function resend(id: string, name: string) {
@@ -119,7 +129,7 @@ export default function AdminClient(props: Props) {
                     >
                       {made}/{total}
                     </td>
-                    <td className="py-2 text-right">
+                    <td className="py-2 text-right whitespace-nowrap">
                       <button
                         onClick={() => resend(m.id, m.name)}
                         className="rounded-[10px] px-2 py-1 text-[11px] font-bold"
@@ -130,6 +140,18 @@ export default function AdminClient(props: Props) {
                       >
                         Resend link
                       </button>
+                      {m.id !== props.adminId && (
+                        <button
+                          onClick={() => remove(m.id, m.name)}
+                          className="ml-2 rounded-[10px] px-2 py-1 text-[11px] font-bold"
+                          style={{
+                            border: "1px solid var(--wrong-ink)",
+                            color: "var(--wrong-ink)",
+                          }}
+                        >
+                          Remove
+                        </button>
+                      )}
                     </td>
                   </tr>
                 );

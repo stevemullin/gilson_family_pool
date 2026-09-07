@@ -48,6 +48,7 @@ export default async function AdminPage() {
 
   return (
     <AdminClient
+      adminId={member.id}
       adminName={member.name}
       week={current.week}
       members={((members ?? []) as Member[]).map((m) => ({
