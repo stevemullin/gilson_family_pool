@@ -74,9 +74,18 @@ export async function GET(req: Request) {
   const allPicks = (picks ?? []) as Pick[];
   const sent: string[] = [];
 
+  // Only games that can still be picked. Counting every game in the week would nag
+  // someone forever about a game that kicked off before they got to it — they'd have
+  // an unfixable "missing" pick for the rest of the week.
+  const openGames = weekGames.filter(
+    (g) => new Date(g.kickoff_at).getTime() > Date.now()
+  );
+
   for (const member of (members ?? []) as Member[]) {
-    const made = allPicks.filter((p) => p.member_id === member.id).length;
-    const missing = weekGames.length - made;
+    const picked = new Set(
+      allPicks.filter((p) => p.member_id === member.id).map((p) => p.game_id)
+    );
+    const missing = openGames.filter((g) => !picked.has(g.id)).length;
     if (missing <= 0) continue;
 
     try {
