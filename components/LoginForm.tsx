@@ -77,14 +77,17 @@ export default function LoginForm({ invalid }: { invalid?: boolean }) {
             {/* type="text" rather than "email": iOS turns off autocorrect for
                 email inputs, and text-replacement shortcuts ride on autocorrect.
                 inputMode keeps the @ key on the keyboard, and the pattern plus
-                the server's own check cover validation. */}
+                the server's own check cover validation. The pattern tolerates
+                surrounding whitespace because expanding a text-replacement
+                shortcut leaves the trailing space that triggered it; submit
+                trims before sending. */}
             <input
               ref={inputRef}
               type="text"
               id="email"
               name="email"
               required
-              pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
+              pattern="\s*[^@\s]+@[^@\s]+\.[^@\s]+\s*"
               title="Enter an email address, like you@example.com"
               inputMode="email"
               autoComplete="email"
