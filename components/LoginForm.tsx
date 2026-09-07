@@ -60,14 +60,14 @@ export default function LoginForm({ invalid }: { invalid?: boolean }) {
 
       {sent ? (
         <p className="mt-4 text-[13px]" style={{ color: "var(--ink-secondary)" }}>
-          If that address is in the pool, your link is on its way. Check your email —
-          open the link once and you&rsquo;re set for the season.
+          If that address is in the pool, your link is on its way. Check your email and
+          open the link — that&rsquo;s the whole sign-in.
         </p>
       ) : (
         <>
           <p className="mt-3 text-[13px]" style={{ color: "var(--ink-secondary)" }}>
-            No passwords here. You get a personal link that keeps you signed in all
-            season — we&rsquo;ll send it again if you&rsquo;ve lost it.
+            No passwords. Enter your email and we&rsquo;ll send you a personal link —
+            open it once and you&rsquo;re signed in for the season.
           </p>
 
           <form onSubmit={submit} className="mt-5 w-full">
@@ -117,7 +117,8 @@ export default function LoginForm({ invalid }: { invalid?: boolean }) {
       )}
 
       <p className="mt-6 text-[11px]" style={{ color: "var(--ink-tertiary)" }}>
-        Only emails already in the pool get a link. Ask the commissioner if yours changed.
+        Only emails already in the pool get a link. If nothing arrives, ask Steve to add
+        you.
       </p>
     </main>
   );
