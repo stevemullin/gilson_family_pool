@@ -1,5 +1,5 @@
 import { createServiceClient } from "./supabase";
-import type { DayGroup, GameState } from "./types";
+import type { GameState } from "./types";
 
 const ESPN_BASE =
   "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard";
@@ -31,30 +31,6 @@ interface ESPNEvent {
       type: { state: GameState; completed: boolean };
     };
   }>;
-}
-
-/**
- * Which day-bucket a kickoff falls into, evaluated in Eastern time. Drives the day
- * rules on the picks page (SPEC.md §2).
- */
-export function dayGroupFor(kickoffISO: string): DayGroup {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/New_York",
-    weekday: "short",
-    hour: "numeric",
-    hour12: false,
-  }).formatToParts(new Date(kickoffISO));
-
-  const weekday = parts.find((p) => p.type === "weekday")?.value ?? "";
-  const hour = Number(parts.find((p) => p.type === "hour")?.value ?? "0");
-
-  if (weekday === "Mon") return "mnf";
-  // Anything that isn't Sunday or Monday groups with Thursday night — this also
-  // catches the occasional Wednesday, Friday, or Saturday game.
-  if (weekday !== "Sun") return "thu";
-  if (hour < 15) return "sun_early";
-  if (hour < 19) return "sun_late";
-  return "snf";
 }
 
 function recordOf(c: ESPNCompetitor): string | null {
@@ -96,7 +72,6 @@ export async function fetchWeek(season: number, week: number, seasonType = 2) {
       season_type: seasonType,
       week,
       kickoff_at: event.date,
-      day_group: dayGroupFor(event.date),
       home_abbr: home.team.abbreviation,
       home_name: home.team.displayName ?? null,
       home_logo: home.team.logo ?? null,
@@ -119,7 +94,7 @@ export async function fetchWeek(season: number, week: number, seasonType = 2) {
 
 /**
  * Sync one week into the database. Upserts on `espn_event_id`, so flex-scheduling
- * changes correct `kickoff_at` and `day_group` in place rather than duplicating rows.
+ * changes correct `kickoff_at` in place rather than duplicating rows.
  */
 export async function syncWeek(season: number, week: number, seasonType = 2) {
   const rows = await fetchWeek(season, week, seasonType);

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import PickCard from "./PickCard";
-import { DAY_LABELS, DAY_ORDER } from "@/lib/season";
+import { kickoffGroupLabel } from "@/lib/season";
 import { isCorrect } from "@/lib/scoring";
 import type { Game, PoolPick } from "@/lib/types";
 
@@ -103,11 +103,18 @@ export default function PicksClient(props: Props) {
     [picks]
   );
 
-  const grouped = DAY_ORDER.map((key) => ({
-    key,
-    label: DAY_LABELS[key],
-    games: games.filter((g) => (g.day_group ?? "thu") === key),
-  })).filter((g) => g.games.length > 0);
+  // Group by exact kickoff, in chronological order. The label comes from the timestamp,
+  // so there is no slot list to fall out of date and a Wednesday opener heads its own
+  // group correctly.
+  const grouped = Array.from(
+    games.reduce((acc, game) => {
+      const key = game.kickoff_at;
+      (acc.get(key) ?? acc.set(key, []).get(key)!).push(game);
+      return acc;
+    }, new Map<string, Game[]>())
+  )
+    .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
+    .map(([key, gs]) => ({ key, label: kickoffGroupLabel(key), games: gs }));
 
   const soonest = games
     .filter((g) => new Date(g.kickoff_at).getTime() > Date.now())

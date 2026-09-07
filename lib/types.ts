@@ -1,7 +1,5 @@
 export type GameState = "pre" | "in" | "post";
 
-export type DayGroup = "thu" | "sun_early" | "sun_late" | "snf" | "mnf";
-
 export interface Member {
   id: string;
   name: string;
@@ -19,7 +17,6 @@ export interface Game {
   season_type: number;
   week: number;
   kickoff_at: string;
-  day_group: DayGroup | null;
   home_abbr: string;
   home_name: string | null;
   home_logo: string | null;

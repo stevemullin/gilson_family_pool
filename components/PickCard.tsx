@@ -1,7 +1,6 @@
 "use client";
 
 import { teamColor, teamLogo } from "@/lib/teams";
-import { kickoffLabel } from "@/lib/season";
 import type { Game, PoolPick } from "@/lib/types";
 
 interface Props {
@@ -164,18 +163,20 @@ export default function PickCard({
         </span>
       );
     }
-    return (
-      <>
-        {urgent && !myPick && (
-          <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--live)" }}>
-            Pick
-          </span>
-        )}
-        <span className="text-center text-[11px] leading-tight" style={{ color: "var(--accent)" }}>
-          {kickoffLabel(game.kickoff_at)}
+    // Kickoff time lives in the group heading, not here — repeating it on every card
+    // was noise. Pre-kickoff the column is just a divider, unless a pick is still
+    // missing close to lock.
+    if (urgent && !myPick) {
+      return (
+        <span
+          className="text-[10px] font-bold uppercase tracking-wider"
+          style={{ color: "var(--live)" }}
+        >
+          Pick
         </span>
-      </>
-    );
+      );
+    }
+    return null;
   }
 
   const others = poolPicks.filter((p) => p.hasPicked);

@@ -85,7 +85,6 @@ CREATE TABLE games (
   season_type INTEGER NOT NULL DEFAULT 2, -- 2 = regular season, 3 = postseason
   week INTEGER NOT NULL,                -- 1-18
   kickoff_at TIMESTAMPTZ NOT NULL,      -- THE lock/reveal boundary
-  day_group TEXT,                       -- 'thu'|'sun_early'|'sun_late'|'snf'|'mnf'
   home_abbr TEXT NOT NULL,              -- "SEA"
   home_name TEXT,                       -- "Seattle Seahawks"
   home_logo TEXT,                       -- ESPN CDN URL
@@ -107,17 +106,12 @@ CREATE INDEX games_week_idx ON games(season, season_type, week);
 CREATE INDEX games_kickoff_idx ON games(kickoff_at);
 ```
 
-`day_group` is derived at sync time from `kickoff_at` converted to America/New_York. It
-drives the picks page's day rules (Thursday night / Sunday 1:00 / Sunday 4:05 & 4:25 /
-Sunday night / Monday night). Rules:
-
-| Condition (ET) | `day_group` |
-|---|---|
-| Not Sunday or Monday | `thu` (covers Thu, and the occasional Wed/Fri/Sat opener) |
-| Sunday, hour < 15 | `sun_early` |
-| Sunday, 15 ≤ hour < 19 | `sun_late` |
-| Sunday, hour ≥ 19 | `snf` |
-| Monday | `mnf` |
+Games are grouped in the UI by their exact `kickoff_at`, with the heading formatted from
+that timestamp (e.g. "Sunday 1:00 PM"). An earlier `day_group` column mapped kickoffs onto
+the design's five named slots, but any hardcoded slot list is wrong the moment the league
+schedules outside it — the 2026 Week 1 opener is a Wednesday, which landed under a
+"Thursday night" heading. Deriving the label from the timestamp cannot go stale, and it
+lets the card drop the per-game kickoff time entirely.
 
 ### Table: `picks`
 
@@ -450,7 +444,7 @@ one-click un-pause next preseason.
 ## 11. Verification
 
 1. **ESPN sync.** `GET /api/cron/sync?key=…` locally, then confirm 16 Week 1 rows in
-   Supabase with correct `kickoff_at`, `day_group`, abbreviations, records, and logo URLs.
+   Supabase with correct `kickoff_at`, abbreviations, records, and logo URLs.
 2. **Privacy — the check that matters.** Sign in as member A and make picks. In a private
    window, sign in as B. On B's `/`, View Source and search for A's picked team
    abbreviations: they must not appear in the HTML or any embedded payload for a

@@ -19,7 +19,6 @@ CREATE TABLE games (
   season_type INTEGER NOT NULL DEFAULT 2, -- 2 = regular season, 3 = postseason
   week INTEGER NOT NULL,
   kickoff_at TIMESTAMPTZ NOT NULL,        -- THE lock/reveal boundary
-  day_group TEXT,                         -- 'thu'|'sun_early'|'sun_late'|'snf'|'mnf'
   home_abbr TEXT NOT NULL,
   home_name TEXT,
   home_logo TEXT,

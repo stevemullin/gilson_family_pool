@@ -68,21 +68,19 @@ export async function getCurrentSeasonWeek(): Promise<SeasonWeek> {
   return fetchCurrentSeasonWeek();
 }
 
-export const DAY_LABELS: Record<string, string> = {
-  thu: "Thursday night",
-  sun_early: "Sunday 1:00",
-  sun_late: "Sunday 4:05 & 4:25",
-  snf: "Sunday night",
-  mnf: "Monday night",
-};
-
-export const DAY_ORDER = ["thu", "sun_early", "sun_late", "snf", "mnf"];
-
-export function kickoffLabel(iso: string): string {
+/**
+ * Heading for a group of games sharing a kickoff, e.g. "Sunday 1:00 PM".
+ *
+ * Derived entirely from the timestamp — there is no hardcoded slot list to get wrong,
+ * so a Wednesday opener or a flexed game labels itself correctly.
+ */
+export function kickoffGroupLabel(iso: string): string {
   return new Intl.DateTimeFormat("en-US", {
     timeZone: "America/New_York",
-    weekday: "short",
+    weekday: "long",
     hour: "numeric",
     minute: "2-digit",
-  }).format(new Date(iso));
+  })
+    .format(new Date(iso))
+    .replace(" at ", " ");
 }
