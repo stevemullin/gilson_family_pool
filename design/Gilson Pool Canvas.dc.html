@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#efe9dd;font-family:'Atkinson Hyperlegible',system-ui,sans-serif;color:#2a2318}
+a{color:#31527b}a:hover{color:#24405f}
+@keyframes gfpPulse{0%,100%{opacity:1}50%{opacity:.35}}
+.dv-turn{padding:40px 44px 32px;border-bottom:1px solid rgba(0,0,0,.08);scroll-margin-top:16px}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 8px}
+.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#2a2318;color:#fff;border-radius:4px;text-decoration:none}
+.dv-tname{font:600 14px/1.2 'Zilla Slab',serif;color:#2a2318}
+.dv-note{font:12px/1.5 system-ui,sans-serif;color:rgba(42,35,24,.6);max-width:760px;margin:0 0 24px}
+.dv-opts{display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px}
+.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(42,35,24,.1);color:#2a2318;border-radius:5px;text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 system-ui,sans-serif;color:rgba(42,35,24,.6)}
+.dv-card{max-width:100%;background:#fff;border:1px solid rgba(42,35,24,.12);border-radius:10px;box-shadow:0 1px 3px rgba(42,35,24,.08);overflow:hidden}
+.dv-opt:target .dv-oid{background:#31527b;color:#fff}
+.dv-next{margin:26px 0 0;font:12px/1.5 system-ui,sans-serif;color:rgba(42,35,24,.55)}
+</style>
+</helmet>
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Gilson Family Football Pool — all screens, first pass</span></div>
+<p class="dv-note"><strong>Assumptions:</strong> warm "family tradition" direction — cream paper, Zilla Slab headings, heritage navy accent; NFL team colors appear only on pick/state feedback. Three-state language: OPEN = navy kickoff time in the center chip, LIVE = red pill with pulsing dot, FINAL = gray chip with green/red result tint on your pick. Artboards show 9 of the week's 16 games; counts in headers assume the full 16. Two pick-card directions first (<a class="dv-oid" href="#1a">1a</a>, <a class="dv-oid" href="#1b">1b</a>); the picks page (<a class="dv-oid" href="#1c">1c</a>) uses direction A.</p>
+<div class="dv-opts">
+
+<!-- ============ 1a PICK CARD DIRECTION A ============ -->
+<div class="dv-opt" id="1a"><div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Pick card · Direction A "Split matchup" — tap a half; all four states</div>
+<div class="dv-card" style="width:390px;background:#faf6ef;padding:16px;display:flex;flex-direction:column;gap:10px">
+  <div style="font-size:10px;color:#a3937a;font-weight:700;letter-spacing:.12em">OPEN — NOT PICKED</div>
+  <div style="display:flex;align-items:stretch;background:#fff;border:1px solid #e6ddcb;border-radius:14px;overflow:hidden">
+    <button style="flex:1;display:flex;align-items:center;gap:10px;padding:12px;border:none;background:none;cursor:pointer;text-align:left;min-height:64px">
+      <img src="https://a.espncdn.com/i/teamlogos/nfl/500/kc.png" width="32" height="32" alt="KC">
+      <span><span style="display:block;font:700 17px 'Zilla Slab',serif">KC</span><span style="display:block;font-size:11px;color:#7d6f58">2–0</span></span>
+    </button>
+    <div style="width:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-left:1px solid #f0e9da;border-right:1px solid #f0e9da">
+      <span style="font-size:9.5px;color:#a3937a;font-weight:700">SUN</span><span style="font:700 13px 'Zilla Slab',serif;color:#31527b">4:25</span>
+    </div>
+    <button style="flex:1;display:flex;flex-direction:row-reverse;align-items:center;gap:10px;padding:12px;border:none;background:none;cursor:pointer;text-align:right;min-height:64px">
+      <img src="https://a.espncdn.com/i/teamlogos/nfl/500/lac.png" width="32" height="32" alt="LAC">
+      <span><span style="display:block;font:700 17px 'Zilla Slab',serif">LAC</span><span style="display:block;font-size:11px;color:#7d6f58">1–1</span></span>
+    </button>
+  </div>
+  <div style="font-size:10px;color:#a3937a;font-weight:700;letter-spacing:.12em;margin-top:4px">OPEN — PICKED (KC) · TAP AGAIN TO SWITCH</div>
+  <div style="display:flex;align-items:stretch;background:#fff;border:1px solid #e6ddcb;border-radius:14px;overflow:hidden">
+    <button style="flex:1;display:flex;align-items:center;gap:10px;padding:12px;border:none;cursor:pointer;text-align:left;min-height:64px;background:color-mix(in srgb,#E31837 9%,#fff);box-shadow:inset 0 0 0 2px #E31837;border-radius:14px 0 0 14px">
+      <img src="https://a.espncdn.com/i/teamlogos/nfl/500/kc.png" width="32" height="32" alt="KC">
+      <span><span style="display:block;font:700 17px 'Zilla Slab',serif">KC</span><span style="display:block;font-size:11px;color:#7d6f58">2–0</span></span>
+      <span style="margin-left:auto;width:20px;height:20px;border-radius:50%;background:#E31837;color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center">✓</span>
+    </button>
+    <div style="width:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-left:1px solid #f0e9da;border-right:1px solid #f0e9da">
+      <span style="font-size:9.5px;color:#a3937a;font-weight:700">SUN</span><span style="font:700 13px 'Zilla Slab',serif;color:#31527b">4:25</span>
+    </div>
+    <button style="flex:1;display:flex;flex-direction:row-reverse;align-items:center;gap:10px;padding:12px;border:none;background:none;cursor:pointer;text-align:right;min-height:64px;opacity:.75">
+      <img src="https://a.espncdn.com/i/teamlogos/nfl/500/lac.png" width="32" height="32" alt="LAC">
+      <span><span style="display:block;font:700 17px 'Zilla Slab',serif">LAC</span><span style="display:block;font-size:11px;color:#7d6f58">1–1</span></span>
+    </button>
+  </div>
+  <div style="font-size:10px;color:#a3937a;font-weight:700;letter-spacing:.12em;margin-top:4px">LIVE — LOCKED, EVERYONE'S PICKS VISIBLE</div>
+  <div style="display:flex;align-items:stretch;background:#fff;border:1px solid #e6ddcb;border-top:3px solid #c0392b;border-radius:14px;overflow:hidden">
+    <div style="flex:1;display:flex;align-items:center;gap:10px;padding:12px;min-height:72px;background:color-mix(in srgb,#00338D 8%,#fff)">
+      <img src="https://a.espncdn.com/i/teamlogos/nfl/500/buf.png" width="32" height="32" alt="BUF">
+      <span style="min-width:0"><span style="display:block;font:700 17px 'Zilla Slab',serif">BUF <span style="font-size:10px;background:#31527b;color:#fff;border-radius:4px;padding:1px 4px;vertical-align:2px">YOU</span></span>
+        <span style="display:flex;gap:2px;margin-top:3px"><span style="font-size:8.5px;background:#eee7d8;color:#5b4f3e;border-radius:99px;padding:1px 4px">Bi</span><span style="font-size:8.5px;background:#eee7d8;color:#5b4f3e;border-radius:99px;padding:1px 4px">Ka</span><span style="font-size:8.5px;background:#eee7d8;color:#5b4f3e;border-radius:99px;padding:1px 4px">Sa</span><span style="font-size:8.5px;background:#eee7d8;color:#5b4f3e;border-radius:99px;padding:1px 4px">Je</span><span style="font-size:8.5px;background:#eee7d8;color:#5b4f3e;border-radius:99px;padding:1px 4px">+2</span></span>
+      </span>
+      <span style="margin-left:auto;font:700 24px 'Zilla Slab',serif">17</span>
+    </div>
+    <div style="width:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-left:1px solid #f0e9da;border-right:1px solid #f0e9da">
+      <span style="display:flex;align-items:center;gap:3px;background:#c0392b;color:#fff;border-radius:99px;font-size:9px;font-weight:700;padding:2px 7px"><span style="width:5px;height:5px;border-radius:50%;background:#fff;animation:gfpPulse 1.4s infinite"></span>LIVE</span>
+      <span style="font-size:10px;color:#7d6f58">Q3 5:12</span>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:row-reverse;align-items:center;gap:10px;padding:12px;min-height:72px;text-align:right">
+      <img src="https://a.espncdn.com/i/teamlogos/nfl/500/mia.png" width="32" height="32" alt="MIA">
+      <span style="min-width:0"><span style="display:block;font:700 17px 'Zilla Slab',serif">MIA</span>
+        <span style="display:flex;gap:2px;margin-top:3px;justify-content:flex-end"><span style="font-size:8.5px;background:#eee7d8;color:#5b4f3e;border-radius:99px;padding:1px 4px">Su</span><span style="font-size:8.5px;background:#eee7d8;color:#5b4f3e;border-radius:99px;padding:1px 4px">To</span><span style="font-size:8.5px;background:#eee7d8;color:#5b4f3e;border-radius:99px;padding:1px 4px">Kt</span></span>
+      </span>
+      <span style="margin-right:auto;font:700 24px 'Zilla Slab',serif;color:#7d6f58">10</span>
+    </div>
+  </div>
+  <div style="font-size:10px;color:#a3937a;font-weight:700;letter-spacing:.12em;margin-top:4px">FINAL — YOUR PICK WAS RIGHT (+1)</div>
+  <div style="display:flex;align-items:stretch;background:#fff;border:1px solid #e6ddcb;border-radius:14px;overflow:hidden">
+    <div style="flex:1;display:flex;align-items:center;gap:10px;padding:12px;min-height:64px;background:#e4f0e7">
+      <img src="https://a.espncdn.com/i/teamlogos/nfl/500/phi.png" width="32" height="32" alt="PHI">
+      <span><span style="display:block;font:700 17px 'Zilla Slab',serif;color:#256a3a">PHI ✓</span><span style="display:block;font-size:10px;color:#256a3a;font-weight:700">YOUR PICK +1</span></span>
+      <span style="margin-left:auto;font:700 24px 'Zilla Slab',serif;color:#256a3a">24</span>
+    </div>
+    <div style="width:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-left:1px solid #f0e9da;border-right:1px solid #f0e9da">
+      <span style="background:#8a7d66;color:#fff;border-radius:99px;font-size:9px;font-weight:700;padding:2px 8px">FINAL</span>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:row-reverse;align-items:center;gap:10px;padding:12px;min-height:64px;text-align:right;opacity:.55">
+      <img src="https://a.espncdn.com/i/teamlogos/nfl/500/gb.png" width="32" height="32" alt="GB">
+      <span><span style="display:block;font:700 17px 'Zilla Slab',serif">GB</span><span style="display:block;font-size:11px;color:#7d6f58">1–2</span></span>
+      <span style="margin-right:auto;font:700 24px 'Zilla Slab',serif;color:#7d6f58">17</span>
+    </div>
+  </div>
+</div></div>
+
+<!-- ============ 1b PICK CARD DIRECTION B ============ -->
+<div class="dv-opt" id="1b"><div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Pick card · Direction B "Ballot rows" — denser, list-like; same four states</div>
+<div class="dv-card" style="width:390px;background:#faf6ef;padding:16px;display:flex;flex-direction:column;gap:10px">
+  <div style="font-size:10px;color:#a3937a;font-weight:700;letter-spacing:.12em">OPEN — NOT PICKED</div>
+  <div style="background:#fff;border:1px solid #e6ddcb;border-radius:14px;overflow:hidden">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 12px;border-bottom:1px solid #f0e9da;font-size:10.5px;color:#7d6f58"><span style="font-weight:700;letter-spacing:.08em">SUN 4:25 PM</span><span style="border:1px solid #cdbfa5;color:#7d6f58;border-radius:99px;font-size:9px;font-weight:700;padding:1px 7px">OPEN</span></div>
+    <button style="display:flex;width:100%;align-items:center;gap:10px;padding:12px;border:none;background:none;cursor:pointer;text-align:left;min-height:52px">
+      <img src="https://a.espncdn.com/i/teamlogos/nfl/500/kc.png" width="26" height="26" alt="KC">
+      <span style="flex:1;font:700 15px 'Zilla Slab',serif">Chiefs <span style="font:400 11px 'Atkinson Hyperlegible',sans-serif;color:#7d6f58">2–0</span></span>
+      <span style="width:18px;height:18px;border-radius:50%;border:2px solid #d8cdb8"></span>
+    </button>
+    <div style="height:1px;background:#f0e9da;margin:0 12px"></div>
+    <button style="display:flex;width:100%;align-items:center;gap:10px;padding:12px;border:none;background:none;cursor:pointer;text-align:left;min-height:52px">
+      <img src="https://a.espncdn.com/i/teamlogos/nfl/500/lac.png" width="26" height="26" alt="LAC">
+      <span style="flex:1;font:700 15px 'Zilla Slab',serif">Chargers <span style="font:400 11px 'Atkinson Hyperlegible',sans-serif;color:#7d6f58">1–1</span></span>
+      <span style="width:18px;height:18px;border-radius:50%;border:2px solid #d8cdb8"></span>
+    </button>
+  </div>
+  <div style="font-size:10px;color:#a3937a;font-weight:700;letter-spacing:.12em;margin-top:4px">OPEN — PICKED (CHIEFS)</div>
+  <div style="background:#fff;border:1px solid #e6ddcb;border-radius:14px;overflow:hidden">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 12px;border-bottom:1px solid #f0e9da;font-size:10.5px;color:#7d6f58"><span style="font-weight:700;letter-spacing:.08em">SUN 4:25 PM</span><span style="border:1px solid #cdbfa5;color:#7d6f58;border-radius:99px;font-size:9px;font-weight:700;padding:1px 7px">OPEN</span></div>
+    <button style="display:flex;width:100%;align-items:center;gap:10px;padding:12px;border:none;cursor:pointer;text-align:left;min-height:52px;background:color-mix(in srgb,#E31837 9%,#fff);box-shadow:inset 3px 0 0 #E31837">
+      <img src="https://a.espncdn.com/i/teamlogos/nfl/500/kc.png" width="26" height="26" alt="KC">
+      <span style="flex:1;font:700 15px 'Zilla Slab',serif">Chiefs <span style="font:400 11px 'Atkinson Hyperlegible',sans-serif;color:#7d6f58">2–0</span></span>
+      <span style="width:18px;height:18px;border-radius:50%;background:#E31837;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center">✓</span>
+    </button>
+    <div style="height:1px;background:#f0e9da;margin:0 12px"></div>
+    <button style="display:flex;width:100%;align-items:center;gap:10px;padding:12px;border:none;background:none;cursor:pointer;text-align:left;min-height:52px;opacity:.7">
+      <img src="https://a.espncdn.com/i/teamlogos/nfl/500/lac.png" width="26" height="26" alt="LAC">
+      <span style="flex:1;font:700 15px 'Zilla Slab',serif">Chargers <span style="font:400 11px 'Atkinson Hyperlegible',sans-serif;color:#7d6f58">1–1</span></span>
+      <span style="width:18px;height:18px;border-radius:50%;border:2px solid #d8cdb8"></span>
+    </button>
+  </div>
+  <div style="font-size:10px;color:#a3937a;font-weight:700;letter-spacing:.12em;margin-top:4px">LIVE</div>
+  <div style="background:#fff;border:1px solid #e6ddcb;border-radius:14px;overflow:hidden">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 12px;border-bottom:1px solid #f0e9da;font-size:10.5px;color:#7d6f58"><span style="font-weight:700;letter-spacing:.08em">Q3 5:12</span><span style="display:flex;align-items:center;gap:3px;background:#c0392b;color:#fff;border-radius:99px;font-size:9px;font-weight:700;padding:2px 7px"><span style="width:5px;height:5px;border-radius:50%;background:#fff;animation:gfpPulse 1.4s infinite"></span>LIVE</span></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:11px 12px;background:color-mix(in srgb,#00338D 8%,#fff);box-shadow:inset 3px 0 0 #00338D">
+      <img src="https://a.espncdn.com/i/teamlogos/nfl/500/buf.png" width="26" height="26" alt="BUF">
+      <span style="flex:1;font:700 15px 'Zilla Slab',serif">Bills <span style="font-size:10px;background:#31527b;color:#fff;border-radius:4px;padding:1px 4px;vertical-align:2px">YOU</span> <span style="font:400 10px 'Atkinson Hyperlegible',sans-serif;color:#7d6f58">+ Bi, Ka, Sa, Je, Mi, Da</span></span>
+      <span style="font:700 20px 'Zilla Slab',serif">17</span>
+    </div>
+    <div style="height:1px;background:#f0e9da;margin:0 12px"></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:11px 12px">
+      <img src="https://a.espncdn.com/i/teamlogos/nfl/500/mia.png" width="26" height="26" alt="MIA">
+      <span style="flex:1;font:700 15px 'Zilla Slab',serif;color:#5b4f3e">Dolphins <span style="font:400 10px 'Atkinson Hyperlegible',sans-serif;color:#7d6f58">Su, To, Kt</span></span>
+      <span style="font:700 20px 'Zilla Slab',serif;color:#7d6f58">10</span>
+    </div>
+  </div>
+  <div style="font-size:10px;color:#a3937a;font-weight:700;letter-spacing:.12em;margin-top:4px">FINAL — WRONG PICK</div>
+  <div style="background:#fff;border:1px solid #e6ddcb;border-radius:14px;overflow:hidden">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 12px;border-bottom:1px solid #f0e9da;font-size:10.5px;color:#7d6f58"><span style="font-weight:700;letter-spacing:.08em">THU</span><span style="background:#8a7d66;color:#fff;border-radius:99px;font-size:9px;font-weight:700;padding:1px 8px">FINAL</span></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:11px 12px">
+      <img src="https://a.espncdn.com/i/teamlogos/nfl/500/phi.png" width="26" height="26" alt="PHI">
+      <span style="flex:1;font:700 15px 'Zilla Slab',serif">Eagles <span style="font:400 10px 'Atkinson Hyperlegible',sans-serif;color:#7d6f58">winner</span></span>
+      <span style="font:700 20px 'Zilla Slab',serif">24</span>
+    </div>
+    <div style="height:1px;background:#f0e9da;margin:0 12px"></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:11px 12px;background:#f9e6e2;box-shadow:inset 3px 0 0 #b03a2e">
+      <img src="https://a.espncdn.com/i/teamlogos/nfl/500/gb.png" width="26" height="26" alt="GB">
+      <span style="flex:1;font:700 15px 'Zilla Slab',serif;color:#b03a2e">Packers ✗ <span style="font:400 10px 'Atkinson Hyperlegible',sans-serif;color:#b03a2e">your pick</span></span>
+      <span style="font:700 20px 'Zilla Slab',serif;color:#7d6f58">17</span>
+    </div>
+  </div>
+</div></div>
+
+<!-- ============ 1c PICKS PAGE ============ -->
+<div class="dv-opt" id="1c"><div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>Picks page · mobile 390 — mid-Sunday, all three states (uses <a class="dv-oid" href="#1a">1a</a>)</div>
+<div class="dv-card" style="width:390px"><div style="background:#faf6ef;padding-bottom:18px">
+  <div style="padding:18px 16px 12px">
+    <div style="font-size:10px;color:#a3937a;font-weight:700;letter-spacing:.16em;text-align:center">GILSON FAMILY FOOTBALL POOL</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:18px;margin-top:6px">
+      <button style="width:34px;height:34px;border-radius:50%;border:1px solid #ddd2bc;background:#fff;color:#31527b;font-size:16px;cursor:pointer">‹</button>
+      <span style="font:700 26px 'Zilla Slab',serif">Week 3</span>
+      <button style="width:34px;height:34px;border-radius:50%;border:1px solid #ddd2bc;background:#fff;color:#31527b;font-size:16px;cursor:pointer">›</button>
+    </div>
+    <div style="display:flex;justify-content:center;gap:8px;margin-top:10px">
+      <span style="font-size:11.5px;font-weight:700;color:#31527b;background:color-mix(in srgb,#31527b 10%,#fff);border-radius:99px;padding:3px 10px">My record 24–9</span>
+      <span style="font-size:11.5px;font-weight:700;color:#5b4f3e;background:#f0e9da;border-radius:99px;padding:3px 10px">14 of 16 picked</span>
+    </div>
+    <div style="height:5px;background:#eadfca;border-radius:99px;margin-top:10px;overflow:hidden"><div style="width:87%;height:100%;background:#31527b;border-radius:99px"></div></div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px;padding:0 14px">
+    <div style="display:flex;align-items:center;gap:8px;margin:4px 2px 0"><span style="font:700 13px 'Zilla Slab',serif;color:#6b5d49">Thursday night</span><span style="flex:1;height:1px;background:#e2d8c4"></span></div>
+    <div style="display:flex;align-items:stretch;background:#fff;border:1px solid #e6ddcb;border-radius:14px;overflow:hidden">
+      <div style="flex:1;display:flex;align-items:center;gap:9px;padding:11px;background:#e4f0e7">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/phi.png" width="30" height="30" alt="PHI">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif;color:#256a3a">PHI ✓</span><span style="display:block;font-size:9.5px;color:#256a3a;font-weight:700">YOU +1</span></span>
+        <span style="margin-left:auto;font:700 22px 'Zilla Slab',serif;color:#256a3a">24</span>
+      </div>
+      <div style="width:56px;display:flex;align-items:center;justify-content:center;border-left:1px solid #f0e9da;border-right:1px solid #f0e9da"><span style="background:#8a7d66;color:#fff;border-radius:99px;font-size:8.5px;font-weight:700;padding:2px 7px">FINAL</span></div>
+      <div style="flex:1;display:flex;flex-direction:row-reverse;align-items:center;gap:9px;padding:11px;text-align:right;opacity:.55">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/gb.png" width="30" height="30" alt="GB">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif">GB</span></span>
+        <span style="margin-right:auto;font:700 22px 'Zilla Slab',serif;color:#7d6f58">17</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin:10px 2px 0"><span style="font:700 13px 'Zilla Slab',serif;color:#6b5d49">Sunday 1:00</span><span style="flex:1;height:1px;background:#e2d8c4"></span></div>
+    <div style="display:flex;align-items:stretch;background:#fff;border:1px solid #e6ddcb;border-top:3px solid #c0392b;border-radius:14px;overflow:hidden">
+      <div style="flex:1;display:flex;align-items:center;gap:9px;padding:11px;background:color-mix(in srgb,#00338D 8%,#fff)">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/buf.png" width="30" height="30" alt="BUF">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif">BUF</span><span style="display:block;font-size:9.5px;color:#31527b;font-weight:700">YOU +5</span></span>
+        <span style="margin-left:auto;font:700 22px 'Zilla Slab',serif">17</span>
+      </div>
+      <div style="width:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-left:1px solid #f0e9da;border-right:1px solid #f0e9da">
+        <span style="display:flex;align-items:center;gap:3px;background:#c0392b;color:#fff;border-radius:99px;font-size:8.5px;font-weight:700;padding:2px 6px"><span style="width:4px;height:4px;border-radius:50%;background:#fff;animation:gfpPulse 1.4s infinite"></span>LIVE</span>
+        <span style="font-size:9.5px;color:#7d6f58">Q3 5:12</span>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:row-reverse;align-items:center;gap:9px;padding:11px;text-align:right">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/mia.png" width="30" height="30" alt="MIA">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif">MIA</span><span style="display:block;font-size:9.5px;color:#a3937a">3 picked</span></span>
+        <span style="margin-right:auto;font:700 22px 'Zilla Slab',serif;color:#7d6f58">10</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:stretch;background:#fff;border:1px solid #e6ddcb;border-top:3px solid #c0392b;border-radius:14px;overflow:hidden">
+      <div style="flex:1;display:flex;align-items:center;gap:9px;padding:11px">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/det.png" width="30" height="30" alt="DET">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif">DET</span><span style="display:block;font-size:9.5px;color:#a3937a">4 picked</span></span>
+        <span style="margin-left:auto;font:700 22px 'Zilla Slab',serif">7</span>
+      </div>
+      <div style="width:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-left:1px solid #f0e9da;border-right:1px solid #f0e9da">
+        <span style="display:flex;align-items:center;gap:3px;background:#c0392b;color:#fff;border-radius:99px;font-size:8.5px;font-weight:700;padding:2px 6px"><span style="width:4px;height:4px;border-radius:50%;background:#fff;animation:gfpPulse 1.4s infinite"></span>LIVE</span>
+        <span style="font-size:9.5px;color:#7d6f58">Q2 0:48</span>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:row-reverse;align-items:center;gap:9px;padding:11px;text-align:right;background:color-mix(in srgb,#C83803 8%,#fff)">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/chi.png" width="30" height="30" alt="CHI">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif">CHI</span><span style="display:block;font-size:9.5px;color:#31527b;font-weight:700">YOU +6</span></span>
+        <span style="margin-right:auto;font:700 22px 'Zilla Slab',serif;color:#7d6f58">3</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:stretch;background:#fff;border:1px solid #e6ddcb;border-top:3px solid #c0392b;border-radius:14px;overflow:hidden">
+      <div style="flex:1;display:flex;align-items:center;gap:9px;padding:11px;background:color-mix(in srgb,#FB4F14 9%,#fff)">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/cin.png" width="30" height="30" alt="CIN">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif">CIN</span><span style="display:block;font-size:9.5px;color:#31527b;font-weight:700">YOU +7</span></span>
+        <span style="margin-left:auto;font:700 22px 'Zilla Slab',serif">14</span>
+      </div>
+      <div style="width:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-left:1px solid #f0e9da;border-right:1px solid #f0e9da">
+        <span style="display:flex;align-items:center;gap:3px;background:#c0392b;color:#fff;border-radius:99px;font-size:8.5px;font-weight:700;padding:2px 6px"><span style="width:4px;height:4px;border-radius:50%;background:#fff;animation:gfpPulse 1.4s infinite"></span>LIVE</span>
+        <span style="font-size:9.5px;color:#7d6f58">Q3 11:02</span>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:row-reverse;align-items:center;gap:9px;padding:11px;text-align:right">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/cle.png" width="30" height="30" alt="CLE">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif">CLE</span><span style="display:block;font-size:9.5px;color:#a3937a">2 picked</span></span>
+        <span style="margin-right:auto;font:700 22px 'Zilla Slab',serif;color:#7d6f58">14</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin:10px 2px 0"><span style="font:700 13px 'Zilla Slab',serif;color:#6b5d49">Sunday 4:05 &amp; 4:25</span><span style="flex:1;height:1px;background:#e2d8c4"></span></div>
+    <div style="display:flex;align-items:stretch;background:#fff;border:1px solid #e6ddcb;border-radius:14px;overflow:hidden">
+      <button style="flex:1;display:flex;align-items:center;gap:9px;padding:11px;border:none;cursor:pointer;text-align:left;min-height:62px;background:color-mix(in srgb,#E31837 9%,#fff);box-shadow:inset 0 0 0 2px #E31837;border-radius:14px 0 0 14px">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/kc.png" width="30" height="30" alt="KC">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif">KC</span><span style="display:block;font-size:10.5px;color:#7d6f58">2–0</span></span>
+        <span style="margin-left:auto;width:19px;height:19px;border-radius:50%;background:#E31837;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center">✓</span>
+      </button>
+      <div style="width:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-left:1px solid #f0e9da;border-right:1px solid #f0e9da"><span style="font-size:9px;color:#a3937a;font-weight:700">SUN</span><span style="font:700 12.5px 'Zilla Slab',serif;color:#31527b">4:25</span></div>
+      <button style="flex:1;display:flex;flex-direction:row-reverse;align-items:center;gap:9px;padding:11px;border:none;background:none;cursor:pointer;text-align:right;min-height:62px;opacity:.75">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/lac.png" width="30" height="30" alt="LAC">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif">LAC</span><span style="display:block;font-size:10.5px;color:#7d6f58">1–1</span></span>
+      </button>
+    </div>
+    <div style="display:flex;align-items:stretch;background:#fff;border:1px solid #e6ddcb;border-radius:14px;overflow:hidden">
+      <button style="flex:1;display:flex;align-items:center;gap:9px;padding:11px;border:none;background:none;cursor:pointer;text-align:left;min-height:62px;opacity:.75">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/sf.png" width="30" height="30" alt="SF">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif">SF</span><span style="display:block;font-size:10.5px;color:#7d6f58">2–0</span></span>
+      </button>
+      <div style="width:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-left:1px solid #f0e9da;border-right:1px solid #f0e9da"><span style="font-size:9px;color:#a3937a;font-weight:700">SUN</span><span style="font:700 12.5px 'Zilla Slab',serif;color:#31527b">4:05</span></div>
+      <button style="flex:1;display:flex;flex-direction:row-reverse;align-items:center;gap:9px;padding:11px;border:none;cursor:pointer;text-align:right;min-height:62px;background:color-mix(in srgb,#69BE28 14%,#fff);box-shadow:inset 0 0 0 2px #002244">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/sea.png" width="30" height="30" alt="SEA">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif">SEA</span><span style="display:block;font-size:10.5px;color:#7d6f58">1–1</span></span>
+        <span style="margin-right:auto;width:19px;height:19px;border-radius:50%;background:#002244;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center">✓</span>
+      </button>
+    </div>
+    <div style="display:flex;align-items:stretch;background:#fff;border:1px dashed #cdbfa5;border-radius:14px;overflow:hidden">
+      <button style="flex:1;display:flex;align-items:center;gap:9px;padding:11px;border:none;background:none;cursor:pointer;text-align:left;min-height:62px">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/min.png" width="30" height="30" alt="MIN">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif">MIN</span><span style="display:block;font-size:10.5px;color:#7d6f58">1–1</span></span>
+      </button>
+      <div style="width:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-left:1px solid #f0e9da;border-right:1px solid #f0e9da"><span style="font-size:9px;color:#b03a2e;font-weight:700">PICK</span><span style="font:700 12.5px 'Zilla Slab',serif;color:#31527b">4:25</span></div>
+      <button style="flex:1;display:flex;flex-direction:row-reverse;align-items:center;gap:9px;padding:11px;border:none;background:none;cursor:pointer;text-align:right;min-height:62px">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/pit.png" width="30" height="30" alt="PIT">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif">PIT</span><span style="display:block;font-size:10.5px;color:#7d6f58">2–0</span></span>
+      </button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin:10px 2px 0"><span style="font:700 13px 'Zilla Slab',serif;color:#6b5d49">Sunday night</span><span style="flex:1;height:1px;background:#e2d8c4"></span></div>
+    <div style="display:flex;align-items:stretch;background:#fff;border:1px solid #e6ddcb;border-radius:14px;overflow:hidden">
+      <button style="flex:1;display:flex;align-items:center;gap:9px;padding:11px;border:none;background:none;cursor:pointer;text-align:left;min-height:62px;opacity:.75">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/dal.png" width="30" height="30" alt="DAL">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif">DAL</span><span style="display:block;font-size:10.5px;color:#7d6f58">1–1</span></span>
+      </button>
+      <div style="width:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-left:1px solid #f0e9da;border-right:1px solid #f0e9da"><span style="font-size:9px;color:#a3937a;font-weight:700">SUN</span><span style="font:700 12.5px 'Zilla Slab',serif;color:#31527b">8:20</span></div>
+      <button style="flex:1;display:flex;flex-direction:row-reverse;align-items:center;gap:9px;padding:11px;border:none;cursor:pointer;text-align:right;min-height:62px;background:color-mix(in srgb,#241773 9%,#fff);box-shadow:inset 0 0 0 2px #241773">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/bal.png" width="30" height="30" alt="BAL">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif">BAL</span><span style="display:block;font-size:10.5px;color:#7d6f58">2–0</span></span>
+        <span style="margin-right:auto;width:19px;height:19px;border-radius:50%;background:#241773;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center">✓</span>
+      </button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin:10px 2px 0"><span style="font:700 13px 'Zilla Slab',serif;color:#6b5d49">Monday night</span><span style="flex:1;height:1px;background:#e2d8c4"></span></div>
+    <div style="display:flex;align-items:stretch;background:#fff;border:1px dashed #cdbfa5;border-radius:14px;overflow:hidden">
+      <button style="flex:1;display:flex;align-items:center;gap:9px;padding:11px;border:none;background:none;cursor:pointer;text-align:left;min-height:62px">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/nyj.png" width="30" height="30" alt="NYJ">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif">NYJ</span><span style="display:block;font-size:10.5px;color:#7d6f58">0–2</span></span>
+      </button>
+      <div style="width:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-left:1px solid #f0e9da;border-right:1px solid #f0e9da"><span style="font-size:9px;color:#b03a2e;font-weight:700">PICK</span><span style="font:700 12.5px 'Zilla Slab',serif;color:#31527b">8:15</span></div>
+      <button style="flex:1;display:flex;flex-direction:row-reverse;align-items:center;gap:9px;padding:11px;border:none;background:none;cursor:pointer;text-align:right;min-height:62px">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/den.png" width="30" height="30" alt="DEN">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif">DEN</span><span style="display:block;font-size:10.5px;color:#7d6f58">2–0</span></span>
+      </button>
+    </div>
+  </div>
+</div></div></div>
+
+<!-- ============ 1d EMPTY STATE ============ -->
+<div class="dv-opt" id="1d"><div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a>Picks page · empty state — Tuesday, week just opened</div>
+<div class="dv-card" style="width:390px"><div style="background:#faf6ef;padding-bottom:0;position:relative">
+  <div style="padding:18px 16px 12px">
+    <div style="font-size:10px;color:#a3937a;font-weight:700;letter-spacing:.16em;text-align:center">GILSON FAMILY FOOTBALL POOL</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:18px;margin-top:6px">
+      <button style="width:34px;height:34px;border-radius:50%;border:1px solid #ddd2bc;background:#fff;color:#31527b;font-size:16px;cursor:pointer">‹</button>
+      <span style="font:700 26px 'Zilla Slab',serif">Week 3</span>
+      <button style="width:34px;height:34px;border-radius:50%;border:1px solid #ddd2bc;background:#fff;color:#31527b;font-size:16px;cursor:pointer;opacity:.35">›</button>
+    </div>
+  </div>
+  <div style="margin:0 14px 12px;background:#31527b;border-radius:14px;padding:14px 16px;color:#fff">
+    <div style="font:700 17px 'Zilla Slab',serif">Week 3 is open, Mike.</div>
+    <div style="font-size:12.5px;opacity:.85;margin-top:3px;line-height:1.45">16 games. Tap a team on each card — picks save as you go, no submit button. First kickoff Thursday 8:15.</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
+      <div style="flex:1;height:5px;background:rgba(255,255,255,.25);border-radius:99px"></div>
+      <span style="font-size:11px;font-weight:700">0 of 16</span>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px;padding:0 14px 70px">
+    <div style="display:flex;align-items:center;gap:8px;margin:2px 2px 0"><span style="font:700 13px 'Zilla Slab',serif;color:#6b5d49">Thursday night</span><span style="flex:1;height:1px;background:#e2d8c4"></span></div>
+    <div style="display:flex;align-items:stretch;background:#fff;border:1px dashed #cdbfa5;border-radius:14px;overflow:hidden;position:relative">
+      <button style="flex:1;display:flex;align-items:center;gap:9px;padding:11px;border:none;background:none;cursor:pointer;text-align:left;min-height:62px">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/phi.png" width="30" height="30" alt="PHI">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif">PHI</span><span style="display:block;font-size:10.5px;color:#7d6f58">2–0</span></span>
+      </button>
+      <div style="width:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-left:1px solid #f0e9da;border-right:1px solid #f0e9da"><span style="font-size:9px;color:#a3937a;font-weight:700">THU</span><span style="font:700 12.5px 'Zilla Slab',serif;color:#31527b">8:15</span></div>
+      <button style="flex:1;display:flex;flex-direction:row-reverse;align-items:center;gap:9px;padding:11px;border:none;background:none;cursor:pointer;text-align:right;min-height:62px">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/gb.png" width="30" height="30" alt="GB">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif">GB</span><span style="display:block;font-size:10.5px;color:#7d6f58">1–1</span></span>
+      </button>
+    </div>
+    <div style="display:flex;justify-content:center;margin:-2px 0 2px"><span style="font-size:11px;color:#31527b;font-weight:700;background:color-mix(in srgb,#31527b 8%,#faf6ef);border-radius:99px;padding:3px 10px">↑ Tap either team to pick — that's it</span></div>
+    <div style="display:flex;align-items:center;gap:8px;margin:8px 2px 0"><span style="font:700 13px 'Zilla Slab',serif;color:#6b5d49">Sunday 1:00</span><span style="flex:1;height:1px;background:#e2d8c4"></span></div>
+    <div style="display:flex;align-items:stretch;background:#fff;border:1px dashed #cdbfa5;border-radius:14px;overflow:hidden">
+      <button style="flex:1;display:flex;align-items:center;gap:9px;padding:11px;border:none;background:none;cursor:pointer;text-align:left;min-height:62px">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/buf.png" width="30" height="30" alt="BUF">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif">BUF</span><span style="display:block;font-size:10.5px;color:#7d6f58">2–0</span></span>
+      </button>
+      <div style="width:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-left:1px solid #f0e9da;border-right:1px solid #f0e9da"><span style="font-size:9px;color:#a3937a;font-weight:700">SUN</span><span style="font:700 12.5px 'Zilla Slab',serif;color:#31527b">1:00</span></div>
+      <button style="flex:1;display:flex;flex-direction:row-reverse;align-items:center;gap:9px;padding:11px;border:none;background:none;cursor:pointer;text-align:right;min-height:62px">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/mia.png" width="30" height="30" alt="MIA">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif">MIA</span><span style="display:block;font-size:10.5px;color:#7d6f58">1–1</span></span>
+      </button>
+    </div>
+    <div style="display:flex;align-items:stretch;background:#fff;border:1px dashed #cdbfa5;border-radius:14px;overflow:hidden">
+      <button style="flex:1;display:flex;align-items:center;gap:9px;padding:11px;border:none;background:none;cursor:pointer;text-align:left;min-height:62px">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/det.png" width="30" height="30" alt="DET">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif">DET</span><span style="display:block;font-size:10.5px;color:#7d6f58">2–0</span></span>
+      </button>
+      <div style="width:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-left:1px solid #f0e9da;border-right:1px solid #f0e9da"><span style="font-size:9px;color:#a3937a;font-weight:700">SUN</span><span style="font:700 12.5px 'Zilla Slab',serif;color:#31527b">1:00</span></div>
+      <button style="flex:1;display:flex;flex-direction:row-reverse;align-items:center;gap:9px;padding:11px;border:none;background:none;cursor:pointer;text-align:right;min-height:62px">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/chi.png" width="30" height="30" alt="CHI">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif">CHI</span><span style="display:block;font-size:10.5px;color:#7d6f58">0–2</span></span>
+      </button>
+    </div>
+    <div style="display:flex;align-items:stretch;background:#fff;border:1px dashed #cdbfa5;border-radius:14px;overflow:hidden">
+      <button style="flex:1;display:flex;align-items:center;gap:9px;padding:11px;border:none;background:none;cursor:pointer;text-align:left;min-height:62px">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/cin.png" width="30" height="30" alt="CIN">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif">CIN</span><span style="display:block;font-size:10.5px;color:#7d6f58">1–1</span></span>
+      </button>
+      <div style="width:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-left:1px solid #f0e9da;border-right:1px solid #f0e9da"><span style="font-size:9px;color:#a3937a;font-weight:700">SUN</span><span style="font:700 12.5px 'Zilla Slab',serif;color:#31527b">1:00</span></div>
+      <button style="flex:1;display:flex;flex-direction:row-reverse;align-items:center;gap:9px;padding:11px;border:none;background:none;cursor:pointer;text-align:right;min-height:62px">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/cle.png" width="30" height="30" alt="CLE">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif">CLE</span><span style="display:block;font-size:10.5px;color:#7d6f58">1–1</span></span>
+      </button>
+    </div>
+  </div>
+  <div style="position:absolute;bottom:12px;left:0;right:0;display:flex;justify-content:center;pointer-events:none">
+    <span style="background:#2a2318;color:#fff;border-radius:99px;font-size:12px;font-weight:700;padding:8px 16px;box-shadow:0 4px 14px rgba(42,35,24,.3)">0 of 16 picked · 13 to go Sunday</span>
+  </div>
+</div></div></div>
+
+<!-- ============ 1e WEEK GRID MOBILE ============ -->
+<div class="dv-opt" id="1e"><div class="dv-olabel"><a class="dv-oid" href="#1e">1e</a>Week grid · mobile 390 — frozen name column, horizontal scroll; pre-kickoff = neutral dot</div>
+<div class="dv-card" style="width:390px"><div style="background:#faf6ef;padding:16px 0 18px">
+  <div style="padding:0 16px 4px;display:flex;align-items:baseline;justify-content:space-between">
+    <span style="font:700 20px 'Zilla Slab',serif">Week 3 grid</span>
+    <span style="font-size:11px;color:#7d6f58">scroll →</span>
+  </div>
+  <div style="padding:0 16px 10px;font-size:11.5px;color:#b03a2e;font-weight:700">Waiting on Tom — 4 games unpicked. Nudge him.</div>
+  <div style="overflow-x:auto;padding-bottom:6px">
+    <div style="display:inline-flex;flex-direction:column;min-width:100%">
+      <div style="display:flex">
+        <div style="position:sticky;left:0;z-index:2;background:#faf6ef;width:78px;flex:none;padding:4px 8px 4px 16px"></div>
+        <div style="width:34px;flex:none;text-align:center;font-size:8.5px;font-weight:700;color:#5b4f3e;align-self:flex-end;padding-bottom:6px">WK3</div>
+        <div style="width:38px;flex:none;text-align:center;font-size:8.5px;font-weight:700;color:#a3937a;align-self:flex-end;padding-bottom:6px">SEAS</div>
+        <sc-for list="{{ gridGames }}" as="g" hint-placeholder-count="9">
+          <div style="width:38px;flex:none;display:flex;flex-direction:column;align-items:center;gap:1px;padding:2px 0 6px">
+            <span style="font-size:8.5px;font-weight:700;color:#5b4f3e">{{ g.a }}</span>
+            <span style="font-size:8.5px;color:#a3937a">{{ g.h }}</span>
+            <span style="width:6px;height:6px;border-radius:50%;background:{{ g.dotBg }};border:{{ g.dotBorder }};margin-top:2px"></span>
+          </div>
+        </sc-for>
+      </div>
+      <sc-for list="{{ sortedGridRows }}" as="row" hint-placeholder-count="10">
+        <div style="display:flex;align-items:center;border-top:1px solid #efe7d6">
+          <div style="position:sticky;left:0;z-index:2;background:{{ row.nameBg }};width:78px;flex:none;padding:7px 8px 7px 16px;font-size:12px;font-weight:700;color:#2a2318;box-shadow:2px 0 4px rgba(42,35,24,.05)">{{ row.name }}</div>
+          <div style="width:34px;flex:none;text-align:center;font:700 12px 'Zilla Slab',serif;color:#2a2318">{{ row.wins }}</div>
+          <div style="width:38px;flex:none;text-align:center;font:700 12px 'Zilla Slab',serif;color:#a3937a;border-right:1px solid #e6dcc7;padding:5px 0">{{ row.season }}</div>
+          <sc-for list="{{ row.cells }}" as="c" hint-placeholder-count="9">
+            <div style="width:38px;flex:none;display:flex;justify-content:center;padding:5px 0">
+              <span style="min-width:26px;height:18px;display:flex;align-items:center;justify-content:center;border-radius:5px;font-size:9px;font-weight:700;background:{{ c.bg }};color:{{ c.fg }};border:{{ c.border }}">{{ c.label }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  <div style="display:flex;gap:12px;padding:10px 16px 0;font-size:10px;color:#7d6f58;flex-wrap:wrap">
+    <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#b8ab93"></span>picked (hidden until kickoff)</span>
+    <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;border:1.5px solid #cdbfa5"></span>not picked</span>
+    <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#e4f0e7;border:1px solid #9cc4a8"></span>correct</span>
+    <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#f9e6e2;border:1px solid #dba99e"></span>wrong</span>
+  </div>
+</div></div></div>
+
+<!-- ============ 1f WEEK GRID DESKTOP ============ -->
+<div class="dv-opt" id="1f"><div class="dv-olabel"><a class="dv-oid" href="#1f">1f</a>Week grid · desktop — sorted by this week's points, running tally on the right</div>
+<div class="dv-card" style="width:920px"><div style="background:#faf6ef;padding:22px 24px 24px">
+  <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:2px">
+    <span style="font:700 24px 'Zilla Slab',serif">Week 3 — who picked what</span>
+    <span style="font-size:12px;color:#7d6f58">Picks stay hidden until each game kicks off</span>
+  </div>
+  <div style="font-size:12.5px;color:#b03a2e;font-weight:700;margin-bottom:14px">Waiting on Tom — 4 games unpicked.</div>
+  <div style="display:flex">
+    <div style="width:110px;flex:none"></div>
+    <div style="width:54px;flex:none;text-align:center;font-size:10.5px;font-weight:700;color:#5b4f3e;padding-bottom:8px">WK 3</div>
+    <div style="width:54px;flex:none;text-align:center;font-size:10.5px;font-weight:700;color:#a3937a;padding-bottom:8px">SEASON</div>
+    <sc-for list="{{ gridGames }}" as="g" hint-placeholder-count="9">
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding-bottom:8px">
+        <span style="font-size:10.5px;font-weight:700;color:#5b4f3e;white-space:nowrap">{{ g.a }} @ {{ g.h }}</span>
+        <span style="font-size:9px;font-weight:700;color:{{ g.stColor }}">{{ g.stLabel }}</span>
+      </div>
+    </sc-for>
+  </div>
+  <sc-for list="{{ sortedGridRows }}" as="row" hint-placeholder-count="10">
+    <div style="display:flex;align-items:center;border-top:1px solid #efe7d6;background:{{ row.rowBg }}">
+      <div style="width:110px;flex:none;padding:8px 8px 8px 4px;font-size:13px;font-weight:700">{{ row.name }}</div>
+      <div style="width:54px;flex:none;text-align:center;font:700 14px 'Zilla Slab',serif;color:#2a2318;padding:6px 0">{{ row.wins }}</div>
+      <div style="width:54px;flex:none;text-align:center;font:700 14px 'Zilla Slab',serif;color:#a3937a;border-right:1px solid #e6dcc7;padding:6px 0">{{ row.season }}</div>
+      <sc-for list="{{ row.cells }}" as="c" hint-placeholder-count="9">
+        <div style="flex:1;display:flex;justify-content:center;padding:6px 0">
+          <span style="min-width:34px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:10.5px;font-weight:700;background:{{ c.bg }};color:{{ c.fg }};border:{{ c.border }}">{{ c.label }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </sc-for>
+</div></div></div>
+
+<!-- ============ 1g STANDINGS ============ -->
+<div class="dv-opt" id="1g"><div class="dv-olabel"><a class="dv-oid" href="#1g">1g</a>Season standings · mobile 390 — just name + record; ties share a rank</div>
+<div class="dv-card" style="width:390px"><div style="background:#faf6ef;padding:18px 0 18px">
+  <div style="padding:0 16px 2px;font:700 22px 'Zilla Slab',serif">Standings</div>
+  <div style="padding:0 16px 12px;font-size:11.5px;color:#7d6f58">Through Week 2 · Week 3 in progress</div>
+  <sc-for list="{{ standings }}" as="p" hint-placeholder-count="10">
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 16px;border-top:1px solid #efe7d6;background:{{ p.bg }}">
+      <span style="width:30px;flex:none;font:700 15px 'Zilla Slab',serif;color:{{ p.rankColor }}">{{ p.rank }}</span>
+      <span style="flex:1;min-width:0;font-size:15px;font-weight:700">{{ p.name }}</span>
+      <span style="flex:none;font:700 16px 'Zilla Slab',serif">{{ p.record }}</span>
+    </div>
+  </sc-for>
+</div></div></div>
+
+<!-- ============ 1h LOGIN ============ -->
+<div class="dv-opt" id="1h"><div class="dv-olabel"><a class="dv-oid" href="#1h">1h</a>Login · "email me my link" — only seen when someone loses their link</div>
+<div class="dv-card" style="width:390px"><div style="background:#faf6ef;min-height:600px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 28px;text-align:center;box-sizing:border-box">
+  <div style="width:56px;height:56px;border-radius:50%;background:#31527b;display:flex;align-items:center;justify-content:center;margin-bottom:18px">
+    <span style="font:700 22px 'Zilla Slab',serif;color:#fff">G</span>
+  </div>
+  <div style="font:700 24px 'Zilla Slab',serif;line-height:1.15">Gilson Family<br>Football Pool</div>
+  <div style="font-size:13.5px;color:#5b4f3e;line-height:1.55;margin:14px 0 22px;max-width:280px">No passwords here. Enter your email and we'll send your personal link — it keeps you signed in all season.</div>
+  <input type="email" placeholder="you@example.com" style="width:100%;max-width:300px;box-sizing:border-box;padding:13px 14px;border:1.5px solid #ddd2bc;border-radius:12px;background:#fff;font-size:15px;font-family:inherit;text-align:center">
+  <button style="width:100%;max-width:300px;margin-top:10px;padding:14px;border:none;border-radius:12px;background:#31527b;color:#fff;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer">Email me my link</button>
+  <div style="font-size:11.5px;color:#a3937a;margin-top:16px;max-width:260px;line-height:1.5">Only emails already in the pool get a link. Ask Mike (the commissioner) if yours changed.</div>
+</div></div></div>
+
+<!-- ============ 1i ADMIN ============ -->
+<div class="dv-opt" id="1i"><div class="dv-olabel"><a class="dv-oid" href="#1i">1i</a>Admin · desktop — commissioner tools</div>
+<div class="dv-card" style="width:1000px"><div style="background:#faf6ef;padding:24px 28px 28px">
+  <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px">
+    <span style="font:700 24px 'Zilla Slab',serif">Commissioner tools</span>
+    <span style="font-size:12px;color:#7d6f58">Signed in as Mike · Week 3</span>
+  </div>
+  <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:18px;align-items:start">
+    <div style="background:#fff;border:1px solid #e6ddcb;border-radius:14px;overflow:hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #f0e9da">
+        <span style="font:700 15px 'Zilla Slab',serif">Family members</span>
+        <button style="border:none;border-radius:8px;background:#31527b;color:#fff;font-size:12px;font-weight:700;padding:7px 12px;font-family:inherit;cursor:pointer">+ Add member</button>
+      </div>
+      <div style="display:flex;padding:8px 16px;font-size:10.5px;font-weight:700;color:#a3937a;letter-spacing:.06em;border-bottom:1px solid #f0e9da"><span style="flex:1.2">NAME</span><span style="flex:2">EMAIL</span><span style="flex:1">WEEK 3 PICKS</span><span style="width:110px"></span></div>
+      <sc-for list="{{ adminRows }}" as="m" hint-placeholder-count="10">
+        <div style="display:flex;align-items:center;padding:9px 16px;border-bottom:1px solid #f7f1e4;font-size:13px">
+          <span style="flex:1.2;font-weight:700">{{ m.name }}</span>
+          <span style="flex:2;color:#7d6f58">{{ m.email }}</span>
+          <span style="flex:1;font-weight:700;color:{{ m.pickColor }}">{{ m.picked }}</span>
+          <span style="width:110px;text-align:right"><button style="border:1px solid #ddd2bc;border-radius:8px;background:#fff;color:#31527b;font-size:11.5px;font-weight:700;padding:5px 10px;font-family:inherit;cursor:pointer">Resend link</button></span>
+        </div>
+      </sc-for>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div style="background:#fff;border:1px solid #e6ddcb;border-radius:14px;padding:16px">
+        <div style="font:700 15px 'Zilla Slab',serif;margin-bottom:6px">Scores</div>
+        <div style="font-size:12.5px;color:#7d6f58;line-height:1.5">Auto-refreshes every 60s on game days.<br>Last sync: today 2:47 PM.</div>
+        <button style="margin-top:12px;width:100%;border:none;border-radius:10px;background:#31527b;color:#fff;font-size:13px;font-weight:700;padding:10px;font-family:inherit;cursor:pointer">Force refresh now</button>
+      </div>
+      <div style="background:#fff;border:1px solid #e6ddcb;border-radius:14px;padding:16px">
+        <div style="font:700 15px 'Zilla Slab',serif;margin-bottom:2px">Override a pick</div>
+        <div style="font-size:11.5px;color:#a3937a;margin-bottom:12px">For "my phone died before kickoff" emergencies. Logged and visible to everyone.</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <select style="padding:9px 10px;border:1.5px solid #ddd2bc;border-radius:10px;background:#fff;font-size:13px;font-family:inherit"><option>Tom</option></select>
+          <select style="padding:9px 10px;border:1.5px solid #ddd2bc;border-radius:10px;background:#fff;font-size:13px;font-family:inherit"><option>MIN @ PIT — Sun 4:25</option></select>
+          <div style="display:flex;gap:8px">
+            <button style="flex:1;padding:9px;border:1.5px solid #ddd2bc;border-radius:10px;background:#fff;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer">MIN</button>
+            <button style="flex:1;padding:9px;border:1.5px solid #31527b;border-radius:10px;background:color-mix(in srgb,#31527b 10%,#fff);color:#31527b;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer">PIT ✓</button>
+          </div>
+          <button style="padding:10px;border:none;border-radius:10px;background:#8a7d66;color:#fff;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer">Save override</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></div></div>
+
+<!-- ============ 1j DARK MODE ============ -->
+<div class="dv-opt" id="1j"><div class="dv-olabel"><a class="dv-oid" href="#1j">1j</a>Dark mode — picks page palette check, one card per state</div>
+<div class="dv-card" style="width:390px"><div style="background:#211c15;padding:18px 14px 20px">
+  <div style="font-size:10px;color:#8a7d66;font-weight:700;letter-spacing:.16em;text-align:center">GILSON FAMILY FOOTBALL POOL</div>
+  <div style="display:flex;align-items:center;justify-content:center;gap:18px;margin-top:6px;margin-bottom:8px">
+    <button style="width:34px;height:34px;border-radius:50%;border:1px solid #453b2c;background:#2b251c;color:#9db8d8;font-size:16px;cursor:pointer">‹</button>
+    <span style="font:700 26px 'Zilla Slab',serif;color:#f2ead9">Week 3</span>
+    <button style="width:34px;height:34px;border-radius:50%;border:1px solid #453b2c;background:#2b251c;color:#9db8d8;font-size:16px;cursor:pointer">›</button>
+  </div>
+  <div style="display:flex;justify-content:center;gap:8px;margin-bottom:14px">
+    <span style="font-size:11.5px;font-weight:700;color:#9db8d8;background:rgba(157,184,216,.12);border-radius:99px;padding:3px 10px">My record 24–9</span>
+    <span style="font-size:11.5px;font-weight:700;color:#c9bda4;background:#2b251c;border-radius:99px;padding:3px 10px">14 of 16 picked</span>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <div style="display:flex;align-items:stretch;background:#2b251c;border:1px solid #453b2c;border-radius:14px;overflow:hidden">
+      <button style="flex:1;display:flex;align-items:center;gap:9px;padding:11px;border:none;cursor:pointer;text-align:left;min-height:62px;background:color-mix(in srgb,#E31837 22%,#2b251c);box-shadow:inset 0 0 0 2px #e8536b">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/kc.png" width="30" height="30" alt="KC">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif;color:#f2ead9">KC</span><span style="display:block;font-size:10.5px;color:#c9bda4">2–0</span></span>
+        <span style="margin-left:auto;width:19px;height:19px;border-radius:50%;background:#e8536b;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center">✓</span>
+      </button>
+      <div style="width:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-left:1px solid #38301f;border-right:1px solid #38301f"><span style="font-size:9px;color:#8a7d66;font-weight:700">SUN</span><span style="font:700 12.5px 'Zilla Slab',serif;color:#9db8d8">4:25</span></div>
+      <button style="flex:1;display:flex;flex-direction:row-reverse;align-items:center;gap:9px;padding:11px;border:none;background:none;cursor:pointer;text-align:right;min-height:62px;opacity:.6">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/lac.png" width="30" height="30" alt="LAC">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif;color:#f2ead9">LAC</span><span style="display:block;font-size:10.5px;color:#c9bda4">1–1</span></span>
+      </button>
+    </div>
+    <div style="display:flex;align-items:stretch;background:#2b251c;border:1px solid #453b2c;border-top:3px solid #e05d4b;border-radius:14px;overflow:hidden">
+      <div style="flex:1;display:flex;align-items:center;gap:9px;padding:11px;background:color-mix(in srgb,#00338D 30%,#2b251c)">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/buf.png" width="30" height="30" alt="BUF">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif;color:#f2ead9">BUF</span><span style="display:block;font-size:9.5px;color:#9db8d8;font-weight:700">YOU +5</span></span>
+        <span style="margin-left:auto;font:700 22px 'Zilla Slab',serif;color:#f2ead9">17</span>
+      </div>
+      <div style="width:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-left:1px solid #38301f;border-right:1px solid #38301f">
+        <span style="display:flex;align-items:center;gap:3px;background:#e05d4b;color:#fff;border-radius:99px;font-size:8.5px;font-weight:700;padding:2px 6px"><span style="width:4px;height:4px;border-radius:50%;background:#fff;animation:gfpPulse 1.4s infinite"></span>LIVE</span>
+        <span style="font-size:9.5px;color:#c9bda4">Q3 5:12</span>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:row-reverse;align-items:center;gap:9px;padding:11px;text-align:right">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/mia.png" width="30" height="30" alt="MIA">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif;color:#f2ead9">MIA</span><span style="display:block;font-size:9.5px;color:#8a7d66">3 picked</span></span>
+        <span style="margin-right:auto;font:700 22px 'Zilla Slab',serif;color:#c9bda4">10</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:stretch;background:#2b251c;border:1px solid #453b2c;border-radius:14px;overflow:hidden">
+      <div style="flex:1;display:flex;align-items:center;gap:9px;padding:11px;background:rgba(83,155,108,.18)">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/phi.png" width="30" height="30" alt="PHI">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif;color:#8fd0a4">PHI ✓</span><span style="display:block;font-size:9.5px;color:#8fd0a4;font-weight:700">YOU +1</span></span>
+        <span style="margin-left:auto;font:700 22px 'Zilla Slab',serif;color:#8fd0a4">24</span>
+      </div>
+      <div style="width:56px;display:flex;align-items:center;justify-content:center;border-left:1px solid #38301f;border-right:1px solid #38301f"><span style="background:#5b4f3e;color:#e9dfc9;border-radius:99px;font-size:8.5px;font-weight:700;padding:2px 7px">FINAL</span></div>
+      <div style="flex:1;display:flex;flex-direction:row-reverse;align-items:center;gap:9px;padding:11px;text-align:right;opacity:.5">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/gb.png" width="30" height="30" alt="GB">
+        <span><span style="display:block;font:700 16px 'Zilla Slab',serif;color:#f2ead9">GB</span></span>
+        <span style="margin-right:auto;font:700 22px 'Zilla Slab',serif;color:#c9bda4">17</span>
+      </div>
+    </div>
+  </div>
+</div></div></div>
+
+</div>
+<p class="dv-next">Try next: "picks page with <a class="dv-oid" href="#1b">1b</a> ballot cards" · "grid as a per-game card list instead of columns" · "more pick-card directions"</p>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const TC = {PHI:'#004C54',GB:'#203731',BUF:'#00338D',MIA:'#008E97',DET:'#0076B6',CHI:'#C83803',CIN:'#FB4F14',CLE:'#311D00',KC:'#E31837',LAC:'#0080C6',SF:'#AA0000',SEA:'#002244',MIN:'#4F2683',PIT:'#101820',DAL:'#041E42',BAL:'#241773',NYJ:'#125740',DEN:'#FB4F14'};
+    const games = [
+      {a:'PHI',h:'GB',st:'final',w:'PHI'},
+      {a:'BUF',h:'MIA',st:'live'},
+      {a:'DET',h:'CHI',st:'live'},
+      {a:'CIN',h:'CLE',st:'live'},
+      {a:'KC',h:'LAC',st:'open'},
+      {a:'SF',h:'SEA',st:'open'},
+      {a:'MIN',h:'PIT',st:'open'},
+      {a:'DAL',h:'BAL',st:'open'},
+      {a:'NYJ',h:'DEN',st:'open'}
+    ];
+    const members = [['Karen',13,12],['Bill',12,12],['Sam',11,13],['Jenny',12,10],['Mike',10,12],['Sue',11,10],['Dave',10,10],['Beth',9,10],['Katie',10,9],['Tom',9,8]];
+    const gridGames = games.map(g => ({
+      a: g.a, h: g.h,
+      dotBg: g.st==='live' ? '#c0392b' : g.st==='final' ? '#5b4f3e' : 'transparent',
+      dotBorder: g.st==='open' ? '1.5px solid #cdbfa5' : 'none',
+      stLabel: g.st==='live' ? 'LIVE' : g.st==='final' ? 'FINAL' : 'OPEN',
+      stColor: g.st==='live' ? '#c0392b' : g.st==='final' ? '#8a7d66' : '#31527b'
+    }));
+    const gridRows = members.map((m, mi) => {
+      const cells = games.map((g, gi) => {
+        const noPick = m[0]==='Tom' && g.st==='open' && gi >= 5;
+        if (g.st==='open') {
+          return noPick
+            ? {label:'', bg:'transparent', fg:'#a3937a', border:'1.5px dashed #cdbfa5'}
+            : {label:'●', bg:'#f0e9da', fg:'#b8ab93', border:'none'};
+        }
+        const pick = ((mi*3 + gi*7) % 2) ? g.a : g.h;
+        if (g.st==='live') return {label:pick, bg:TC[pick], fg:'#fff', border:'none'};
+        const correct = pick === g.w;
+        return correct
+          ? {label:pick+' ✓', bg:'#e4f0e7', fg:'#256a3a', border:'1px solid #b9d4c1'}
+          : {label:pick+' ✗', bg:'#f9e6e2', fg:'#a03b2c', border:'1px solid #e5c0b7'};
+      });
+      const wins = games.reduce((n, g, gi) => {
+        if (g.st !== 'final') return n;
+        const pick = ((mi*3 + gi*7) % 2) ? g.a : g.h;
+        return n + (pick === g.w ? 1 : 0);
+      }, 0);
+      return {name:m[0], cells, wins, season: m[1] + m[2] + wins, tally: wins + ' pt' + (wins === 1 ? '' : 's'), nameBg: mi%2 ? '#f5efe2' : '#faf6ef', rowBg: mi%2 ? '#f5efe2' : 'transparent'};
+    });
+    const sortedGridRows = [...gridRows].sort((a,b)=>b.wins-a.wins).map((r,i)=>({...r, rowBg: i%2 ? '#f5efe2' : 'transparent'}));
+    const sorted = members.map(m => ({name:m[0], w1:m[1], w2:m[2], wins:m[1]+m[2]})).sort((a,b)=>b.wins-a.wins);
+    const standings = sorted.map((p, i) => {
+      const tied = sorted.filter(s => s.wins === p.wins).length > 1;
+      const firstIdx = sorted.findIndex(s => s.wins === p.wins);
+      const rank = (tied ? 'T' : '') + (firstIdx + 1);
+      const cell = v => v >= 13 ? {bg:'#256a3a',border:'none',tip:v+' correct'} : v >= 11 ? {bg:'#7fae8e',border:'none',tip:v+' correct'} : {bg:'#c9dccf',border:'none',tip:v+' correct'};
+      const weeks = [cell(p.w1), cell(p.w2), {bg:'#e8b34b',border:'none',tip:'Week 3 live'}];
+      for (let k = 3; k < 18; k++) weeks.push({bg:'transparent', border:'1px solid #e6dcc7', tip:'Week '+(k+1)});
+      return {
+        name: p.name, rank,
+        rankColor: firstIdx === 0 ? '#b5432a' : '#5b4f3e',
+        record: p.wins + '–' + (32 - p.wins),
+        pct: Math.round(p.wins/32*100) + '%',
+        bg: firstIdx === 0 ? 'color-mix(in srgb,#b5432a 6%,#faf6ef)' : 'transparent',
+        weeks
+      };
+    });
+    const adminRows = members.map(m => {
+      const n = m[0]==='Tom' ? 5 : 9;
+      return {name:m[0], email:m[0].toLowerCase()+'@gilsonfam.com', picked:n+' / 9', pickColor:n<9?'#b03a2e':'#256a3a'};
+    });
+    return {gridGames, gridRows, sortedGridRows, standings, adminRows};
+  }
+}
+</script>
+</body>
+</html>
