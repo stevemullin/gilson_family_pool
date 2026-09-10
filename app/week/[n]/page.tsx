@@ -1,11 +1,16 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentMember } from "@/lib/auth";
 import { getCurrentSeasonWeek } from "@/lib/season";
 import { getGridView, type GridCell } from "@/lib/picks";
-import { pickerPill } from "@/lib/teams";
+import { getNavData } from "@/lib/nav";
+import TabBar from "@/components/TabBar";
+import WeekHeader from "@/components/WeekHeader";
 
 export const dynamic = "force-dynamic";
+
+const NAME_W = 96;
+const WEEK_W = 44;
+const GAME_W = 44;
 
 export default async function WeekGridPage({
   params,
@@ -17,164 +22,159 @@ export default async function WeekGridPage({
 
   const current = await getCurrentSeasonWeek();
   const week = Number(params.n) || current.week;
-  const { games, rows } = await getGridView(
-    current.season,
-    week,
-    member.id,
-    current.seasonType
-  );
+  const [{ games, rows }, nav] = await Promise.all([
+    getGridView(current.season, week, member.id, current.seasonType),
+    getNavData(member.id, current.season, week, current.seasonType),
+  ]);
 
   const now = Date.now();
-  const behind = rows
-    .filter((r) => !r.isViewer && r.missing > 0)
-    .sort((a, b) => b.missing - a.missing)[0];
 
   return (
-    <main className="mx-auto max-w-[1000px] px-4 pb-16 pt-5">
-      <p className="overline text-center">Gilson Family Football Pool</p>
-      <h1 className="display mt-1 text-center text-[26px] font-bold">
-        Week {week}
-      </h1>
-      <p
-        className="mt-1 text-center text-[11px]"
-        style={{ color: "var(--ink-secondary)" }}
+    <>
+      <main
+        className="mx-auto max-w-[1000px] pt-1"
+        style={{ paddingBottom: "calc(59px + env(safe-area-inset-bottom) + 16px)" }}
       >
-        Picks stay hidden until each game kicks off.
-      </p>
+        <WeekHeader week={week} maxWeek={nav.maxWeek} basePath="/week">
+          <p
+            className="mt-1 text-center text-[11px]"
+            style={{ color: "var(--ink-secondary)" }}
+          >
+            Picks stay hidden until each game kicks off.
+          </p>
+        </WeekHeader>
 
-      {behind && (
-        <p
-          className="mt-3 text-center text-[12px] font-bold"
-          style={{ color: "var(--live)" }}
-        >
-          Waiting on {behind.name} — {behind.missing} game
-          {behind.missing === 1 ? "" : "s"} unpicked. Nudge them.
-        </p>
-      )}
-
-      <div className="mt-4 overflow-x-auto">
-        <table className="border-collapse text-[11px]">
-          <thead>
-            <tr>
-              <th
-                className="sticky left-0 z-10 w-[78px] px-2 py-2 text-left"
-                style={{ background: "var(--bg)" }}
-              >
-                <span className="overline">Name</span>
-              </th>
-              <th className="w-[54px] px-1 py-2 text-center">
-                <span className="overline">Wk {week}</span>
-              </th>
-              <th
-                className="w-[54px] px-1 py-2 text-center"
-                style={{ borderRight: "1px solid var(--day-rule)" }}
-              >
-                <span className="overline" style={{ color: "var(--ink-tertiary)" }}>
-                  Season
-                </span>
-              </th>
-              {games.map((g) => {
-                const started = new Date(g.kickoff_at).getTime() <= now;
-                const dot = g.is_final
-                  ? "var(--ink)"
-                  : g.state === "in"
-                    ? "var(--live)"
-                    : "transparent";
-                return (
-                  <th key={g.id} className="w-[38px] px-[2px] py-2 align-bottom">
-                    <span className="display block text-[9px] font-bold leading-tight">
-                      {g.away_abbr}
-                      <br />
-                      {g.home_abbr}
+        {/* The fade sits over the scroller's right edge so a clipped column
+            reads as "there's more", rather than as the table simply ending. */}
+        <div className="relative mt-[14px]">
+          <div className="ml-4 overflow-x-auto">
+            <table
+              className="border-collapse text-[11px]"
+              style={{ width: "max-content" }}
+            >
+              <thead>
+                <tr>
+                  <th
+                    className="sticky left-0 z-10 px-[6px] pb-[6px] pt-2 text-left align-bottom"
+                    style={{ width: NAME_W, background: "var(--bg)" }}
+                  >
+                    <span className="overline" style={{ letterSpacing: ".12em" }}>
+                      Name
                     </span>
-                    <span
-                      className="mx-auto mt-1 block h-[6px] w-[6px] rounded-full"
-                      style={{
-                        background: dot,
-                        border: started ? "none" : "1px solid var(--ink-tertiary)",
-                      }}
-                      aria-hidden
-                    />
                   </th>
-                );
-              })}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, i) => (
-              <tr
-                key={row.memberId}
-                style={{
-                  background: i % 2 ? "var(--desk)" : "transparent",
-                }}
-              >
-                <th
-                  scope="row"
-                  className="sticky left-0 z-10 w-[78px] px-2 py-[6px] text-left text-[12px] font-bold"
-                  style={{
-                    background: i % 2 ? "var(--desk)" : "var(--bg)",
-                    boxShadow: "2px 0 3px -2px rgba(0,0,0,.18)",
-                  }}
-                >
-                  {row.name}
-                </th>
-                <td className="display px-1 py-[6px] text-center text-[13px] font-bold tabular-nums">
-                  {row.weekPoints}
-                </td>
-                <td
-                  className="display px-1 py-[6px] text-center text-[13px] font-bold tabular-nums"
-                  style={{
-                    color: "var(--ink-tertiary)",
-                    borderRight: "1px solid var(--day-rule)",
-                  }}
-                >
-                  {row.seasonPoints}
-                </td>
-                {row.cells.map((cell) => (
-                  <td key={cell.gameId} className="px-[2px] py-[6px] text-center">
-                    <Cell cell={cell} />
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <ul
-        className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-1 text-[10px]"
-        style={{ color: "var(--ink-secondary)" }}
-      >
-        <li>• Tan dot = picked, still hidden</li>
-        <li>• Dashed = not picked yet</li>
-        <li>• – = missed it</li>
-        <li>• Chip = kicked off</li>
-        <li>• ✓ / ✗ = final</li>
-      </ul>
-
-      <nav className="mt-6 flex justify-center gap-4 text-[12px]">
-        <Link href="/" style={{ color: "var(--accent)" }}>
-          My picks
-        </Link>
-        <Link href="/standings" style={{ color: "var(--accent)" }}>
-          Standings
-        </Link>
-      </nav>
-    </main>
+                  <th
+                    className="sticky z-10 px-1 pb-[6px] pt-2 text-center align-bottom"
+                    style={{
+                      left: NAME_W,
+                      width: WEEK_W,
+                      background: "var(--bg)",
+                      borderRight: "1px solid var(--day-rule)",
+                      boxShadow: "2px 0 3px -2px rgba(0,0,0,.18)",
+                    }}
+                  >
+                    <span className="overline" style={{ letterSpacing: ".12em" }}>
+                      Wk {week}
+                    </span>
+                  </th>
+                  {games.map((g) => {
+                    const started = new Date(g.kickoff_at).getTime() <= now;
+                    return (
+                      <th
+                        key={g.id}
+                        className="px-[2px] pb-[6px] pt-2 text-center align-bottom"
+                        style={{ width: GAME_W }}
+                      >
+                        <span className="display block text-[9px] font-bold leading-[1.15]">
+                          {g.away_abbr}
+                          <br />
+                          {g.home_abbr}
+                        </span>
+                        <span
+                          className="mx-auto mt-1 block h-[6px] w-[6px] rounded-full"
+                          style={{
+                            background: g.is_final
+                              ? "var(--ink)"
+                              : g.state === "in"
+                                ? "var(--live)"
+                                : "transparent",
+                            border: started
+                              ? "none"
+                              : "1px solid var(--ink-tertiary)",
+                          }}
+                          aria-hidden
+                        />
+                      </th>
+                    );
+                  })}
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row, i) => {
+                  const stripe = i % 2 ? "var(--desk)" : "var(--bg)";
+                  return (
+                    <tr key={row.memberId} style={{ background: stripe }}>
+                      <th
+                        scope="row"
+                        className="sticky left-0 z-10 whitespace-nowrap px-[6px] py-[6px] text-left text-[12px] font-bold"
+                        style={{ background: stripe }}
+                      >
+                        {row.name}
+                        <span
+                          className="block text-[9.5px] font-normal"
+                          style={{ color: "var(--ink-secondary)" }}
+                        >
+                          Season {row.seasonPoints}
+                        </span>
+                      </th>
+                      <td
+                        className="display sticky z-10 px-1 py-[6px] text-center text-[15px] font-bold tabular-nums"
+                        style={{
+                          left: NAME_W,
+                          background: stripe,
+                          borderRight: "1px solid var(--day-rule)",
+                          boxShadow: "2px 0 3px -2px rgba(0,0,0,.18)",
+                        }}
+                      >
+                        {row.weekPoints}
+                      </td>
+                      {row.cells.map((cell) => (
+                        <td
+                          key={cell.gameId}
+                          className="px-[2px] py-[6px] text-center"
+                        >
+                          <Cell cell={cell} />
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-y-0 right-0 w-[36px]"
+            style={{
+              background:
+                "linear-gradient(to right, transparent, var(--bg) 80%)",
+            }}
+          />
+        </div>
+      </main>
+      <TabBar active="everyone" nav={nav} />
+    </>
   );
 }
 
 function Cell({ cell }: { cell: GridCell }) {
-  // No pick. A dashed outline says "still to come"; once the game has kicked off
-  // that's misleading, because the chance is gone — so a missed game reads as a
-  // flat dash instead.
+  // No pick. A dashed outline says "still to come"; once the game has kicked
+  // off that's misleading, because the chance is gone.
   if (!cell.hasPicked) {
     if (cell.locked) {
       return (
         <span
           className="mx-auto block text-[11px] font-bold"
           style={{ color: "var(--ink-tertiary)" }}
-          aria-label="missed this game"
           title="No pick — game kicked off"
         >
           –
@@ -190,8 +190,7 @@ function Cell({ cell }: { cell: GridCell }) {
     );
   }
 
-  // Picked but the game hasn't kicked off. The team is not in the payload at all —
-  // a neutral dot is all there is to render.
+  // Picked but not yet kicked off. The team never reaches the browser.
   if (!cell.pickedAbbr) {
     return (
       <span
@@ -202,28 +201,28 @@ function Cell({ cell }: { cell: GridCell }) {
     );
   }
 
-  if (cell.correct === undefined) {
-    // Home takes a full team colour, away a quiet neutral — the same rule as
-    // the pick cards, so two navy teams in one column can't collide.
-    return (
-      <span
-        className="display mx-auto block rounded-full px-1 py-[2px] text-[9px] font-bold"
-        style={pickerPill(cell.pickedAbbr, cell.side ?? "home")}
-      >
-        {cell.pickedAbbr}
-      </span>
-    );
-  }
+  // Home and away are told apart by weight rather than hue: a solid ink chip
+  // versus an outlined one. Team colour is deliberately absent here — it now
+  // appears only on a pick card's chosen half and on its split bar.
+  const style: React.CSSProperties =
+    cell.correct === undefined
+      ? cell.side === "home"
+        ? { background: "var(--ink-warm)", color: "var(--bg)" }
+        : {
+            background: "#fff",
+            color: "var(--ink-warm)",
+            boxShadow: "inset 0 0 0 1px #d8cfbc",
+          }
+      : cell.correct
+        ? { background: "var(--correct-bg)", color: "var(--correct-ink)" }
+        : { background: "var(--wrong-bg)", color: "var(--wrong-ink)" };
 
   return (
     <span
-      className="display mx-auto block rounded-full px-1 py-[2px] text-[9px] font-bold"
-      style={{
-        background: cell.correct ? "var(--correct-bg)" : "var(--wrong-bg)",
-        color: cell.correct ? "var(--correct-ink)" : "var(--wrong-ink)",
-      }}
+      className="display mx-auto inline-block whitespace-nowrap rounded-full px-[6px] py-[3px] text-[10px] font-bold leading-[1.1]"
+      style={style}
     >
-      {cell.pickedAbbr} {cell.correct ? "✓" : "✗"}
+      {cell.pickedAbbr}
     </span>
   );
 }

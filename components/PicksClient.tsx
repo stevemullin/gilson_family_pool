@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
 import PickCard from "./PickCard";
+import WeekHeader from "./WeekHeader";
 import { kickoffGroupLabel } from "@/lib/season";
 import { isCorrect } from "@/lib/scoring";
 import type { Game, PoolPick } from "@/lib/types";
@@ -18,9 +18,6 @@ interface Props {
   seasonRecord: { correct: number; played: number };
   maxWeek: number;
 }
-
-/** Kickoff within this window marks unpicked cards urgent (dashed + red "PICK"). */
-const URGENT_MS = 6 * 60 * 60 * 1000;
 
 export default function PicksClient(props: Props) {
   const [games, setGames] = useState(props.games);
@@ -61,11 +58,6 @@ export default function PicksClient(props: Props) {
     }
     return n;
   }, [games, picks]);
-
-  const pickedCount = useMemo(
-    () => games.filter((g) => picks[g.id]).length,
-    [games, picks]
-  );
 
   const onPick = useCallback(
     (gameId: string, team: string) => {
@@ -126,43 +118,15 @@ export default function PicksClient(props: Props) {
     .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
     .map(([key, gs]) => ({ key, label: kickoffGroupLabel(key), games: gs }));
 
-  const soonest = games
-    .filter((g) => new Date(g.kickoff_at).getTime() > Date.now())
-    .sort(
-      (a, b) =>
-        new Date(a.kickoff_at).getTime() - new Date(b.kickoff_at).getTime()
-    )[0];
-  const urgentCutoff = soonest
-    ? new Date(soonest.kickoff_at).getTime() + URGENT_MS
-    : 0;
-
-  const remaining = games.length - pickedCount;
-  const empty = pickedCount === 0;
+  const empty = games.every((g) => !picks[g.id]);
 
   return (
-    <main className="mx-auto max-w-[430px] px-4 pb-24 pt-5">
-      <header className="mb-4">
-        <p className="overline text-center">Gilson Family Football Pool</p>
-
-        <div className="mt-1 flex items-center justify-center gap-3">
-          <WeekArrow
-            to={props.week > 1 ? `/?week=${props.week - 1}` : undefined}
-            label="Previous week"
-          >
-            ‹
-          </WeekArrow>
-          <h1 className="display text-[26px] font-bold">Week {props.week}</h1>
-          <WeekArrow
-            to={
-              props.week < props.maxWeek ? `/?week=${props.week + 1}` : undefined
-            }
-            label="Next week"
-          >
-            ›
-          </WeekArrow>
-        </div>
-
-        <div className="mt-2 flex justify-center gap-2 text-[11px]">
+    <main
+      className="mx-auto max-w-[430px] px-4 pt-5"
+      style={{ paddingBottom: "calc(59px + env(safe-area-inset-bottom) + 16px)" }}
+    >
+      <WeekHeader week={props.week} maxWeek={props.maxWeek} basePath="/">
+        <div className="mt-2 flex justify-center text-[11px]">
           <span
             className="rounded-full px-[10px] py-[3px] font-bold"
             style={{
@@ -173,27 +137,6 @@ export default function PicksClient(props: Props) {
             My record {props.seasonRecord.correct}–
             {props.seasonRecord.played - props.seasonRecord.correct}
           </span>
-          <span
-            className="rounded-full px-[10px] py-[3px] font-bold"
-            style={{ background: "var(--desk)", color: "var(--ink-warm)" }}
-          >
-            {pickedCount} of {games.length} picked
-          </span>
-        </div>
-
-        <div
-          className="mt-2 h-[5px] w-full overflow-hidden rounded-full"
-          style={{ background: "var(--desk)" }}
-        >
-          <div
-            className="h-full rounded-full transition-[width] duration-300"
-            style={{
-              width: games.length
-                ? `${(pickedCount / games.length) * 100}%`
-                : "0%",
-              background: "var(--accent)",
-            }}
-          />
         </div>
 
         {/* Standing reassurance. The empty-state banner says this too, but it
@@ -204,7 +147,7 @@ export default function PicksClient(props: Props) {
             Picks save the moment you tap — there&rsquo;s nothing to submit.
           </p>
         )}
-      </header>
+      </WeekHeader>
 
       {empty && games.length > 0 && (
         <section
@@ -242,9 +185,6 @@ export default function PicksClient(props: Props) {
                   myPick={picks[game.id]}
                   poolPicks={poolPicks[game.id] ?? []}
                   weekPoints={weekPoints}
-                  urgent={
-                    new Date(game.kickoff_at).getTime() <= urgentCutoff
-                  }
                   onPick={(team) => onPick(game.id, team)}
                 />
                 {failed[game.id] && (
@@ -262,63 +202,27 @@ export default function PicksClient(props: Props) {
         </section>
       ))}
 
-      <nav className="mt-6 flex justify-center gap-4 text-[12px]">
-        <Link href={`/week/${props.week}`} style={{ color: "var(--accent)" }}>
-          Everyone&rsquo;s picks
-        </Link>
-        <Link href="/standings" style={{ color: "var(--accent)" }}>
-          Standings
-        </Link>
-      </nav>
-
-      {/* Always on screen while there are games — including once every pick is
-          in, which is when someone is most likely to wonder if it took. It
-          flashes a confirmation each time a write actually lands. */}
-      {games.length > 0 && (
-        <div className="pointer-events-none fixed inset-x-0 bottom-4 flex justify-center px-4">
-          <p
-            className="rounded-full px-4 py-2 text-[12px] font-bold text-white shadow-lg transition-colors duration-300"
+      {/* Transient confirmation, sitting just above the tab bar. With the
+          standing counter gone from the page, this is the only per-pick
+          feedback — so it fires on the response, never on the optimistic
+          update, and never claims a save that failed. */}
+      {justSaved && (
+        <div
+          className="pointer-events-none fixed inset-x-0 flex justify-center"
+          style={{ bottom: "calc(70px + env(safe-area-inset-bottom))", zIndex: 30 }}
+          aria-live="polite"
+        >
+          <span
+            className="rounded-full px-[14px] py-[6px] text-[11.5px] font-bold text-white"
             style={{
-              background: justSaved ? "var(--correct-ink)" : "#2a2318",
+              background: "var(--correct-ink)",
+              boxShadow: "0 4px 12px rgba(42,35,24,.2)",
             }}
-            aria-live="polite"
           >
-            {justSaved ? "✓ Saved · " : ""}
-            {pickedCount} of {games.length} picked
-            {remaining > 0 ? ` · ${remaining} to go` : " · all in"}
-          </p>
+            ✓ Saved
+          </span>
         </div>
       )}
     </main>
-  );
-}
-
-function WeekArrow({
-  to,
-  label,
-  children,
-}: {
-  to?: string;
-  label: string;
-  children: React.ReactNode;
-}) {
-  const style = {
-    borderColor: "var(--card-border)",
-    color: "var(--ink)",
-  };
-  const cls =
-    "flex h-[34px] w-[34px] items-center justify-center rounded-full border text-[18px] leading-none";
-
-  if (!to) {
-    return (
-      <span className={cls} style={{ ...style, opacity: 0.35 }} aria-hidden>
-        {children}
-      </span>
-    );
-  }
-  return (
-    <Link href={to} aria-label={label} className={cls} style={style}>
-      {children}
-    </Link>
   );
 }

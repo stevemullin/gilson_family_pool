@@ -259,7 +259,10 @@ export async function getGridView(
   });
 
   rows.sort(
-    (a, b) => b.weekPoints - a.weekPoints || a.name.localeCompare(b.name)
+    (a, b) =>
+      b.weekPoints - a.weekPoints ||
+      b.seasonPoints - a.seasonPoints ||
+      a.name.localeCompare(b.name)
   );
 
   return { games, rows };

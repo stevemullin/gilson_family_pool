@@ -1,9 +1,10 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentMember } from "@/lib/auth";
 import { getCurrentSeasonWeek } from "@/lib/season";
 import { createServiceClient } from "@/lib/supabase";
 import { computeStandings } from "@/lib/scoring";
+import { getNavData } from "@/lib/nav";
+import TabBar from "@/components/TabBar";
 import type { Game, Pick } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -37,8 +38,19 @@ export default async function StandingsPage() {
     .filter((g) => g.is_final)
     .reduce((max, g) => Math.max(max, g.week), 0);
 
+  const nav = await getNavData(
+    member.id,
+    current.season,
+    current.week,
+    current.seasonType
+  );
+
   return (
-    <main className="mx-auto max-w-[430px] px-4 pb-16 pt-5">
+    <>
+      <main
+        className="mx-auto max-w-[430px] px-4 pt-5"
+        style={{ paddingBottom: "calc(59px + env(safe-area-inset-bottom) + 16px)" }}
+      >
       <p className="overline text-center">Gilson Family Football Pool</p>
       <h1 className="display mt-1 text-center text-[26px] font-bold">Standings</h1>
       <p
@@ -89,14 +101,8 @@ export default async function StandingsPage() {
         })}
       </ol>
 
-      <nav className="mt-6 flex justify-center gap-4 text-[12px]">
-        <Link href="/" style={{ color: "var(--accent)" }}>
-          My picks
-        </Link>
-        <Link href={`/week/${current.week}`} style={{ color: "var(--accent)" }}>
-          Week {current.week} grid
-        </Link>
-      </nav>
-    </main>
+      </main>
+      <TabBar active="standings" nav={nav} />
+    </>
   );
 }

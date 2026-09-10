@@ -6,6 +6,8 @@ import { syncIfStale } from "@/lib/espn";
 import { createServiceClient } from "@/lib/supabase";
 import { pointsFor } from "@/lib/scoring";
 import PicksClient from "@/components/PicksClient";
+import TabBar from "@/components/TabBar";
+import { getNavData } from "@/lib/nav";
 import type { Game, Pick } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -52,23 +54,22 @@ export default async function PicksPage({
     (myPicks ?? []) as Pick[]
   );
 
-  const maxWeek = Math.max(
-    current.week,
-    ...((allGames ?? []) as Game[]).map((g) => g.week),
-    1
-  );
+  const nav = await getNavData(member.id, current.season, week, current.seasonType);
 
   return (
-    <PicksClient
-      memberName={member.name}
-      season={current.season}
-      week={week}
-      seasonType={current.seasonType}
-      games={view.games}
-      myPicks={view.myPicks}
-      poolPicks={view.poolPicks}
-      seasonRecord={seasonRecord}
-      maxWeek={maxWeek}
-    />
+    <>
+      <PicksClient
+        memberName={member.name}
+        season={current.season}
+        week={week}
+        seasonType={current.seasonType}
+        games={view.games}
+        myPicks={view.myPicks}
+        poolPicks={view.poolPicks}
+        seasonRecord={seasonRecord}
+        maxWeek={nav.maxWeek}
+      />
+      <TabBar active="picks" nav={nav} />
+    </>
   );
 }

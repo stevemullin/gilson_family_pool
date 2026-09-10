@@ -1,18 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { pickerPill, teamColor, teamLogo } from "@/lib/teams";
+import { teamColor, teamLogo } from "@/lib/teams";
 import type { Game, PoolPick } from "@/lib/types";
-
-/**
- * Other people's pills shown per side before collapsing behind a "+N".
- *
- * Each side only gets half the card, so at phone width about two name pills fit
- * per row. Three others plus the viewer's own YOU pill plus the toggle lands on
- * two rows. It's a count, not a measured height, so a run of long names can
- * still spill to a third — cheap, and close enough.
- */
-const VISIBLE_PICKERS = 3;
 
 interface Props {
   game: Game;
@@ -21,16 +11,9 @@ interface Props {
   /** Points the viewer has banked this week, shown as "YOU +n" on locked cards. */
   weekPoints: number;
   onPick: (team: string) => void;
-  /** Highlights an unpicked card with a dashed border once kickoff is close. */
-  urgent?: boolean;
 }
 
-/**
- * First name only. Two-letter initials collided in the real pool — Chantel and
- * Christina both read "CH", James and Jamie both read "JA" — which made the pill
- * row unreadable. Surnames are dropped since a family pool has one of each first
- * name and the extra width costs a wrap.
- */
+/** First name only — the expanded roster is a comma-separated list. */
 function shortName(name: string) {
   return name.trim().split(/\s+/)[0] || name;
 }
@@ -41,7 +24,6 @@ export default function PickCard({
   poolPicks,
   weekPoints,
   onPick,
-  urgent,
 }: Props) {
   // One expand state per card, so tapping "+N" on either side opens both.
   const [expanded, setExpanded] = useState(false);
@@ -183,19 +165,8 @@ export default function PickCard({
         </span>
       );
     }
-    // Kickoff time lives in the group heading, not here — repeating it on every card
-    // was noise. Pre-kickoff the column is just a divider, unless a pick is still
-    // missing close to lock.
-    if (urgent && !myPick) {
-      return (
-        <span
-          className="text-[10px] font-bold uppercase tracking-wider"
-          style={{ color: "var(--live)" }}
-        >
-          Pick
-        </span>
-      );
-    }
+    // Kickoff time lives in the group heading, not here — repeating it on
+    // every card was noise. Pre-kickoff the column is just a divider.
     return null;
   }
 
@@ -206,82 +177,50 @@ export default function PickCard({
     (p): p is Extract<PoolPick, { pickedAbbr: string }> => "pickedAbbr" in p
   );
 
-  /** Everyone who took one side, rendered under that side of the card. */
-  function pickerColumn(side: "away" | "home") {
+  // Split bar: one 6px rail under a locked card, its two segments weighted by
+  // how many people took each side. It replaced a row of name pills, which
+  // couldn't answer the only question the card is really asked once it locks —
+  // "am I with the crowd or against it" — without being read one pill at a time.
+  const awayPickers = revealed.filter((p) => p.pickedAbbr === game.away_abbr);
+  const homePickers = revealed.filter((p) => p.pickedAbbr === game.home_abbr);
+  const awayCount = awayPickers.length + (myPick === game.away_abbr ? 1 : 0);
+  const homeCount = homePickers.length + (myPick === game.home_abbr ? 1 : 0);
+
+  function segmentColour(side: "away" | "home") {
     const abbr = side === "away" ? game.away_abbr : game.home_abbr;
-    const mine = myPick === abbr;
-    const theirs = revealed.filter((p) => p.pickedAbbr === abbr);
-    if (!mine && theirs.length === 0) {
-      return <div className="flex-1" />;
+    if (isFinal && game.winner_abbr !== null) {
+      return game.winner_abbr === abbr
+        ? "var(--correct-ink)"
+        : "var(--wrong-ink)";
     }
+    return myPick === abbr ? teamColor(abbr) : "#d8d1c3";
+  }
 
-    // Team colours identify the side — home loud, away quiet. Once the game is
-    // final the result outranks identity: the side that was right goes green,
-    // the side that was wrong recedes.
-    const won = isFinal && game.winner_abbr === abbr;
-    const lost = isFinal && game.winner_abbr !== null && !won;
+  function segmentLabel(side: "away" | "home") {
+    const abbr = side === "away" ? game.away_abbr : game.home_abbr;
+    const count = side === "away" ? awayCount : homeCount;
+    if (myPick === abbr) {
+      const others = count - 1;
+      return others > 0 ? `You + ${others} other${others === 1 ? "" : "s"}` : "You";
+    }
+    return `${count} on ${abbr}`;
+  }
 
-    const pill = won
-      ? { background: "var(--correct-bg)", color: "var(--correct-ink)", boxShadow: "none" }
-      : lost
-        ? { background: "var(--wrong-bg)", color: "var(--wrong-ink)", boxShadow: "none" }
-        : pickerPill(abbr, side);
+  function labelColour(side: "away" | "home") {
+    const abbr = side === "away" ? game.away_abbr : game.home_abbr;
+    if (isFinal && game.winner_abbr !== null) {
+      return game.winner_abbr === abbr ? "var(--correct-ink)" : "var(--wrong-ink)";
+    }
+    return myPick === abbr ? teamColor(abbr) : "var(--ink-secondary)";
+  }
 
-    const overflow = theirs.length - VISIBLE_PICKERS;
-    const shown = expanded ? theirs : theirs.slice(0, VISIBLE_PICKERS);
-
-    return (
-      <div
-        className={`flex flex-1 flex-wrap gap-1 px-2 py-[6px] ${
-          side === "away" ? "justify-start" : "justify-end"
-        }`}
-      >
-        {mine && (
-          <span
-            className="rounded-full px-[5px] py-[2px] font-bold text-white"
-            style={{
-              background: won
-                ? "var(--correct-ink)"
-                : lost
-                  ? "var(--wrong-ink)"
-                  : "var(--accent)",
-            }}
-            title={`You picked ${abbr}`}
-          >
-            YOU{isFinal ? (won ? " +1" : "") : ` +${weekPoints}`}
-          </span>
-        )}
-        {shown.map((p) => (
-          <span
-            key={p.memberId}
-            className="rounded-full px-[5px] py-[2px] font-bold"
-            style={pill}
-            title={`${p.memberName} picked ${abbr}`}
-          >
-            {shortName(p.memberName)}
-            {p.overridden && <span title="Commissioner override"> ·</span>}
-          </span>
-        ))}
-        {/* Expanding has to be undoable, or a tap you didn't mean leaves the
-            card tall for the rest of the session. */}
-        {overflow > 0 && (
-          <button
-            type="button"
-            onClick={() => setExpanded(!expanded)}
-            className="rounded-full px-[5px] py-[2px] font-bold underline"
-            style={{ background: "var(--desk)", color: "var(--ink-warm)" }}
-            aria-expanded={expanded}
-            aria-label={
-              expanded
-                ? `Show fewer ${abbr} pickers`
-                : `Show ${overflow} more ${abbr} pickers`
-            }
-          >
-            {expanded ? "less" : `+${overflow}`}
-          </button>
-        )}
-      </div>
+  function roster(side: "away" | "home") {
+    const abbr = side === "away" ? game.away_abbr : game.home_abbr;
+    const names = (side === "away" ? awayPickers : homePickers).map((p) =>
+      shortName(p.memberName)
     );
+    if (myPick === abbr) return ["You", ...names];
+    return names;
   }
 
   return (
@@ -289,9 +228,7 @@ export default function PickCard({
       className="overflow-hidden"
       style={{
         background: "var(--card)",
-        border: `1px ${urgent && !myPick && !locked ? "dashed" : "solid"} ${
-          urgent && !myPick && !locked ? "#cdbfa5" : "var(--card-border)"
-        }`,
+        border: "1px solid var(--card-border)",
         borderTop: isLive ? "3px solid var(--live)" : undefined,
         borderRadius: "var(--radius-card)",
       }}
@@ -327,31 +264,65 @@ export default function PickCard({
         Locked games reveal who picked what. Before kickoff the parent only ever hands
         us `hasPicked`, so there is nothing here that could leak a pick.
       */}
-      {locked && (revealed.length > 0 || myPick) && (
+      {locked && awayCount + homeCount > 0 && (
         <div
-          className="flex items-start text-[9px]"
-          style={{ borderTop: "1px solid var(--hairline)" }}
-        >
-          {/*
-            Pickers sit under the team they took, so position carries the
-            meaning and the abbreviation on each pill is redundant. Team colour
-            can't do this job alone: roughly a third of the league is navy, and
-            NE against SEA rendered as two identical pale blues.
-          */}
-          {pickerColumn("away")}
-          <div
-            className={centerContent === null ? "w-px shrink-0" : "w-[58px] shrink-0"}
-            style={
-              centerContent === null
-                ? { background: "var(--hairline)" }
-                : {
-                    borderLeft: "1px solid var(--hairline)",
-                    borderRight: "1px solid var(--hairline)",
-                  }
+          role="button"
+          tabIndex={0}
+          aria-expanded={expanded}
+          aria-label={expanded ? "Hide who picked" : "Show who picked"}
+          onClick={() => setExpanded(!expanded)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setExpanded(!expanded);
             }
-            aria-hidden
-          />
-          {pickerColumn("home")}
+          }}
+          className="cursor-pointer"
+          style={{
+            borderTop: "1px solid var(--hairline)",
+            padding: "8px 12px 10px",
+          }}
+        >
+          <div
+            className="flex overflow-hidden"
+            style={{ height: 6, borderRadius: 99, gap: 2 }}
+          >
+            <span style={{ flex: awayCount, background: segmentColour("away") }} />
+            <span style={{ flex: homeCount, background: segmentColour("home") }} />
+          </div>
+
+          <div className="mt-[6px] flex justify-between text-[11px] font-bold">
+            <span style={{ color: labelColour("away") }}>{segmentLabel("away")}</span>
+            <span style={{ color: labelColour("home") }}>{segmentLabel("home")}</span>
+          </div>
+
+          {expanded && (
+            <div
+              className="mt-[6px] flex justify-between gap-3 text-[11px] leading-[1.5]"
+              style={{ color: "var(--ink-warm)" }}
+            >
+              <span className="flex-1 text-left">
+                {roster("away").map((n, i) => (
+                  <span key={n + i}>
+                    {i > 0 && ", "}
+                    <span style={n === "You" ? { color: "var(--accent)", fontWeight: 700 } : undefined}>
+                      {n}
+                    </span>
+                  </span>
+                ))}
+              </span>
+              <span className="flex-1 text-right">
+                {roster("home").map((n, i) => (
+                  <span key={n + i}>
+                    {i > 0 && ", "}
+                    <span style={n === "You" ? { color: "var(--accent)", fontWeight: 700 } : undefined}>
+                      {n}
+                    </span>
+                  </span>
+                ))}
+              </span>
+            </div>
+          )}
         </div>
       )}
     </article>
