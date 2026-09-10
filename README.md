@@ -31,3 +31,37 @@ npm run dev
 ```
 
 Run `supabase-setup.sql` in the Supabase SQL editor once to create the schema.
+
+## Local development database
+
+Development runs against a Supabase stack in Docker, never the live pool.
+Production credentials live only in Vercel.
+
+```bash
+supabase start          # first run pulls ~2GB of images
+supabase db reset       # applies the schema and seeds 18 fictional members
+npm run dev
+```
+
+Sign in as the seeded commissioner — this also triggers the first ESPN sync,
+which populates that week's games:
+
+    http://localhost:3000/join/devdevdevdevdevdevdev1
+
+Then fill the board in with random picks so the grid and standings have
+something to show:
+
+```bash
+docker exec supabase_db_gilson_family_pool psql -U postgres -c "select dev_seed_picks();"
+```
+
+Useful local URLs: the app on :3000, Supabase Studio on
+http://127.0.0.1:54323, and captured outbound email on http://127.0.0.1:54324.
+
+Every page shows a banner naming which database it's talking to. Green means
+local and safe; red means you are one tap away from changing a real family
+member's pick. `RESEND_API_KEY` is intentionally empty locally, so email is
+logged rather than sent.
+
+To point local development at production temporarily, `npx vercel env pull`
+— and expect the red banner.
