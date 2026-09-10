@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import { Zilla_Slab, Atkinson_Hyperlegible } from "next/font/google";
 import "./globals.css";
 
@@ -47,7 +48,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const env = dbEnvironment();
-  const isProdHost = process.env.SITE_URL?.includes("pool.themullins.org");
+  // Judge by the host actually being served, not by SITE_URL. Vercel shares
+  // that variable between Production and Preview, so a preview deployment —
+  // which points at the real database — looked like production here and
+  // suppressed its own warning. The host can't lie.
+  const host = headers().get("host") ?? "";
+  const isProdHost = host === "pool.themullins.org";
   // Only shout when the pairing is surprising: the live site on the live
   // database is the one combination that needs no warning.
   const banner =
@@ -57,7 +63,7 @@ export default function RootLayout({
         ? { text: "Local database — safe to click", tone: "#256a3a" }
         : isProdHost
           ? null
-          : { text: "Live database — your picks are real", tone: "#c0392b" };
+          : { text: "Preview · live database — your picks are real", tone: "#c0392b" };
 
   return (
     <html lang="en" className={`${display.variable} ${body.variable}`}>
