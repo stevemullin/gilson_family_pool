@@ -2,8 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentMember } from "@/lib/auth";
 import { getCurrentSeasonWeek } from "@/lib/season";
-import { getGridView } from "@/lib/picks";
-import { teamColor } from "@/lib/teams";
+import { getGridView, type GridCell } from "@/lib/picks";
+import { pickerPill } from "@/lib/teams";
 
 export const dynamic = "force-dynamic";
 
@@ -147,7 +147,8 @@ export default async function WeekGridPage({
       >
         <li>• Tan dot = picked, still hidden</li>
         <li>• Dashed = not picked yet</li>
-        <li>• Team chip = live</li>
+        <li>• – = missed it</li>
+        <li>• Chip = kicked off</li>
         <li>• ✓ / ✗ = final</li>
       </ul>
 
@@ -163,18 +164,28 @@ export default async function WeekGridPage({
   );
 }
 
-function Cell({
-  cell,
-}: {
-  cell: { hasPicked: boolean; pickedAbbr?: string; correct?: boolean };
-}) {
-  // Not picked yet.
+function Cell({ cell }: { cell: GridCell }) {
+  // No pick. A dashed outline says "still to come"; once the game has kicked off
+  // that's misleading, because the chance is gone — so a missed game reads as a
+  // flat dash instead.
   if (!cell.hasPicked) {
+    if (cell.locked) {
+      return (
+        <span
+          className="mx-auto block text-[11px] font-bold"
+          style={{ color: "var(--ink-tertiary)" }}
+          aria-label="missed this game"
+          title="No pick — game kicked off"
+        >
+          –
+        </span>
+      );
+    }
     return (
       <span
         className="mx-auto block h-[18px] w-[30px] rounded-full"
         style={{ border: "1px dashed #cdbfa5" }}
-        aria-label="no pick"
+        aria-label="no pick yet"
       />
     );
   }
@@ -192,12 +203,12 @@ function Cell({
   }
 
   if (cell.correct === undefined) {
+    // Home takes a full team colour, away a quiet neutral — the same rule as
+    // the pick cards, so two navy teams in one column can't collide.
     return (
       <span
         className="display mx-auto block rounded-full px-1 py-[2px] text-[9px] font-bold"
-        style={{
-          background: `color-mix(in srgb, ${teamColor(cell.pickedAbbr)} 22%, var(--card))`,
-        }}
+        style={pickerPill(cell.pickedAbbr, cell.side ?? "home")}
       >
         {cell.pickedAbbr}
       </span>

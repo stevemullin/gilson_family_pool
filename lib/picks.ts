@@ -146,7 +146,11 @@ export interface GridCell {
   gameId: string;
   /** Present only when the game is revealed, or when it's the viewer's own pick. */
   pickedAbbr?: string;
+  /** Which side of the matchup that pick was, so the chip can colour itself. */
+  side?: "home" | "away";
   hasPicked: boolean;
+  /** Kicked off, so an empty cell here is a miss rather than a pending pick. */
+  locked: boolean;
   correct?: boolean;
 }
 
@@ -218,18 +222,24 @@ export async function getGridView(
 
     let missing = 0;
     const cells: GridCell[] = games.map((game) => {
+      const locked = isRevealed(game, now);
       const pick = mine.find((p) => p.game_id === game.id);
       if (!pick) {
-        missing += 1;
-        return { gameId: game.id, hasPicked: false };
+        // Only count picks someone can still make. A game that already kicked
+        // off is missed, not outstanding — counting it would nudge people
+        // forever about something they can't act on.
+        if (!locked) missing += 1;
+        return { gameId: game.id, hasPicked: false, locked };
       }
-      const revealed = isRevealed(game, now) || isViewer;
-      if (!revealed) return { gameId: game.id, hasPicked: true };
+      const revealed = locked || isViewer;
+      if (!revealed) return { gameId: game.id, hasPicked: true, locked };
 
       return {
         gameId: game.id,
         hasPicked: true,
+        locked,
         pickedAbbr: pick.picked_abbr,
+        side: pick.picked_abbr === game.home_abbr ? "home" : "away",
         correct:
           game.is_final && game.winner_abbr !== null
             ? game.winner_abbr === pick.picked_abbr

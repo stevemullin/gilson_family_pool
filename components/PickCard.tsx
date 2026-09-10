@@ -1,7 +1,18 @@
 "use client";
 
-import { teamColor, teamLogo } from "@/lib/teams";
+import { useState } from "react";
+import { pickerPill, teamColor, teamLogo } from "@/lib/teams";
 import type { Game, PoolPick } from "@/lib/types";
+
+/**
+ * Other people's pills shown per side before collapsing behind a "+N".
+ *
+ * Each side only gets half the card, so at phone width about two name pills fit
+ * per row. Three others plus the viewer's own YOU pill plus the toggle lands on
+ * two rows. It's a count, not a measured height, so a run of long names can
+ * still spill to a third — cheap, and close enough.
+ */
+const VISIBLE_PICKERS = 3;
 
 interface Props {
   game: Game;
@@ -14,8 +25,14 @@ interface Props {
   urgent?: boolean;
 }
 
-function initials(name: string) {
-  return name.trim().slice(0, 2).toUpperCase();
+/**
+ * First name only. Two-letter initials collided in the real pool — Chantel and
+ * Christina both read "CH", James and Jamie both read "JA" — which made the pill
+ * row unreadable. Surnames are dropped since a family pool has one of each first
+ * name and the extra width costs a wrap.
+ */
+function shortName(name: string) {
+  return name.trim().split(/\s+/)[0] || name;
 }
 
 export default function PickCard({
@@ -26,6 +43,9 @@ export default function PickCard({
   onPick,
   urgent,
 }: Props) {
+  // One expand state per card, so tapping "+N" on either side opens both.
+  const [expanded, setExpanded] = useState(false);
+
   const locked = new Date(game.kickoff_at).getTime() <= Date.now();
   const state = game.state;
   const isLive = state === "in";
@@ -186,6 +206,84 @@ export default function PickCard({
     (p): p is Extract<PoolPick, { pickedAbbr: string }> => "pickedAbbr" in p
   );
 
+  /** Everyone who took one side, rendered under that side of the card. */
+  function pickerColumn(side: "away" | "home") {
+    const abbr = side === "away" ? game.away_abbr : game.home_abbr;
+    const mine = myPick === abbr;
+    const theirs = revealed.filter((p) => p.pickedAbbr === abbr);
+    if (!mine && theirs.length === 0) {
+      return <div className="flex-1" />;
+    }
+
+    // Team colours identify the side — home loud, away quiet. Once the game is
+    // final the result outranks identity: the side that was right goes green,
+    // the side that was wrong recedes.
+    const won = isFinal && game.winner_abbr === abbr;
+    const lost = isFinal && game.winner_abbr !== null && !won;
+
+    const pill = won
+      ? { background: "var(--correct-bg)", color: "var(--correct-ink)", boxShadow: "none" }
+      : lost
+        ? { background: "var(--wrong-bg)", color: "var(--wrong-ink)", boxShadow: "none" }
+        : pickerPill(abbr, side);
+
+    const overflow = theirs.length - VISIBLE_PICKERS;
+    const shown = expanded ? theirs : theirs.slice(0, VISIBLE_PICKERS);
+
+    return (
+      <div
+        className={`flex flex-1 flex-wrap gap-1 px-2 py-[6px] ${
+          side === "away" ? "justify-start" : "justify-end"
+        }`}
+      >
+        {mine && (
+          <span
+            className="rounded-full px-[5px] py-[2px] font-bold text-white"
+            style={{
+              background: won
+                ? "var(--correct-ink)"
+                : lost
+                  ? "var(--wrong-ink)"
+                  : "var(--accent)",
+            }}
+            title={`You picked ${abbr}`}
+          >
+            YOU{isFinal ? (won ? " +1" : "") : ` +${weekPoints}`}
+          </span>
+        )}
+        {shown.map((p) => (
+          <span
+            key={p.memberId}
+            className="rounded-full px-[5px] py-[2px] font-bold"
+            style={pill}
+            title={`${p.memberName} picked ${abbr}`}
+          >
+            {shortName(p.memberName)}
+            {p.overridden && <span title="Commissioner override"> ·</span>}
+          </span>
+        ))}
+        {/* Expanding has to be undoable, or a tap you didn't mean leaves the
+            card tall for the rest of the session. */}
+        {overflow > 0 && (
+          <button
+            type="button"
+            onClick={() => setExpanded(!expanded)}
+            className="rounded-full px-[5px] py-[2px] font-bold underline"
+            style={{ background: "var(--desk)", color: "var(--ink-warm)" }}
+            aria-expanded={expanded}
+            aria-label={
+              expanded
+                ? `Show fewer ${abbr} pickers`
+                : `Show ${overflow} more ${abbr} pickers`
+            }
+          >
+            {expanded ? "less" : `+${overflow}`}
+          </button>
+        )}
+      </div>
+    );
+  }
+
   return (
     <article
       className="overflow-hidden"
@@ -231,31 +329,29 @@ export default function PickCard({
       */}
       {locked && (revealed.length > 0 || myPick) && (
         <div
-          className="flex flex-wrap items-center gap-1 px-3 py-[6px] text-[8.5px]"
+          className="flex items-start text-[9px]"
           style={{ borderTop: "1px solid var(--hairline)" }}
         >
-          {myPick && (
-            <span
-              className="rounded-full px-[6px] py-[2px] font-bold text-white"
-              style={{ background: "var(--accent)" }}
-            >
-              YOU +{weekPoints}
-            </span>
-          )}
-          {revealed.map((p) => (
-            <span
-              key={p.memberId}
-              className="rounded-full px-[6px] py-[2px] font-bold"
-              style={{
-                background: `color-mix(in srgb, ${teamColor(p.pickedAbbr)} 16%, var(--card))`,
-                color: "var(--ink)",
-              }}
-              title={`${p.memberName} picked ${p.pickedAbbr}`}
-            >
-              {initials(p.memberName)} {p.pickedAbbr}
-              {p.overridden && <span title="Commissioner override"> ·</span>}
-            </span>
-          ))}
+          {/*
+            Pickers sit under the team they took, so position carries the
+            meaning and the abbreviation on each pill is redundant. Team colour
+            can't do this job alone: roughly a third of the league is navy, and
+            NE against SEA rendered as two identical pale blues.
+          */}
+          {pickerColumn("away")}
+          <div
+            className={centerContent === null ? "w-px shrink-0" : "w-[58px] shrink-0"}
+            style={
+              centerContent === null
+                ? { background: "var(--hairline)" }
+                : {
+                    borderLeft: "1px solid var(--hairline)",
+                    borderRight: "1px solid var(--hairline)",
+                  }
+            }
+            aria-hidden
+          />
+          {pickerColumn("home")}
         </div>
       )}
     </article>
