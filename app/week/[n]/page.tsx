@@ -8,9 +8,19 @@ import WeekHeader from "@/components/WeekHeader";
 
 export const dynamic = "force-dynamic";
 
-const NAME_W = 96;
+const NAME_W = 78;
 const WEEK_W = 44;
 const GAME_W = 44;
+
+/**
+ * Seven characters, then an ellipsis. The name column is the only frozen
+ * one, and at 78px a long first name would either wrap the row or push the
+ * season total off its column. The full name stays in the cell's title.
+ */
+function trimName(name: string) {
+  const first = name.trim().split(/\s+/)[0] || name;
+  return first.length > 7 ? first.slice(0, 7) + "…" : first;
+}
 
 export default async function WeekGridPage({
   params,
@@ -56,20 +66,25 @@ export default async function WeekGridPage({
                 <tr>
                   <th
                     className="sticky left-0 z-10 px-[6px] pb-[6px] pt-2 text-left align-bottom"
-                    style={{ width: NAME_W, background: "var(--bg)" }}
+                    style={{
+                      width: NAME_W,
+                      background: "var(--bg)",
+                      boxShadow: "2px 0 3px -2px rgba(0,0,0,.18)",
+                    }}
                   >
-                    <span className="overline" style={{ letterSpacing: ".12em" }}>
-                      Name
+                    <span
+                      className="overline flex justify-between gap-[6px]"
+                      style={{ letterSpacing: ".12em" }}
+                    >
+                      <span>Name</span>
+                      <span>Ssn</span>
                     </span>
                   </th>
                   <th
-                    className="sticky z-10 px-1 pb-[6px] pt-2 text-center align-bottom"
+                    className="px-1 pb-[6px] pt-2 text-center align-bottom"
                     style={{
-                      left: NAME_W,
                       width: WEEK_W,
-                      background: "var(--bg)",
                       borderRight: "1px solid var(--day-rule)",
-                      boxShadow: "2px 0 3px -2px rgba(0,0,0,.18)",
                     }}
                   >
                     <span className="overline" style={{ letterSpacing: ".12em" }}>
@@ -110,37 +125,48 @@ export default async function WeekGridPage({
               </thead>
               <tbody>
                 {rows.map((row, i) => {
-                  const stripe = i % 2 ? "var(--desk)" : "var(--bg)";
+                  // The viewer's row overrides the zebra with an accent tint
+                  // across the whole row and a bar on the frozen cell's left
+                  // edge, so it stays findable however far the grid scrolls.
+                  const stripe = row.isViewer
+                    ? "color-mix(in srgb, var(--accent) 18%, var(--bg))"
+                    : i % 2
+                      ? "var(--desk)"
+                      : "var(--bg)";
                   return (
                     <tr key={row.memberId} style={{ background: stripe }}>
                       <th
                         scope="row"
-                        className="sticky left-0 z-10 whitespace-nowrap px-[6px] py-[6px] text-left text-[12px] font-bold"
-                        style={{ background: stripe }}
+                        className="sticky left-0 z-10 whitespace-nowrap px-[6px] py-[5px] text-left text-[12px] font-bold"
+                        style={{
+                          background: stripe,
+                          color: row.isViewer ? "var(--accent)" : undefined,
+                          boxShadow: row.isViewer
+                            ? "inset 3px 0 0 var(--accent), 2px 0 3px -2px rgba(0,0,0,.18)"
+                            : "2px 0 3px -2px rgba(0,0,0,.18)",
+                        }}
+                        title={row.name}
                       >
-                        {row.name}
-                        <span
-                          className="block text-[9.5px] font-normal"
-                          style={{ color: "var(--ink-secondary)" }}
-                        >
-                          Season {row.seasonPoints}
+                        <span className="flex items-baseline justify-between gap-[6px]">
+                          <span>{trimName(row.name)}</span>
+                          <span
+                            className="display min-w-[16px] text-right text-[11px] font-normal tabular-nums"
+                            style={{ color: "var(--ink-secondary)" }}
+                          >
+                            {row.seasonPoints}
+                          </span>
                         </span>
                       </th>
                       <td
-                        className="display sticky z-10 px-1 py-[6px] text-center text-[15px] font-bold tabular-nums"
-                        style={{
-                          left: NAME_W,
-                          background: stripe,
-                          borderRight: "1px solid var(--day-rule)",
-                          boxShadow: "2px 0 3px -2px rgba(0,0,0,.18)",
-                        }}
+                        className="display px-1 py-[5px] text-center text-[15px] font-bold tabular-nums"
+                        style={{ borderRight: "1px solid var(--day-rule)" }}
                       >
                         {row.weekPoints}
                       </td>
                       {row.cells.map((cell) => (
                         <td
                           key={cell.gameId}
-                          className="px-[2px] py-[6px] text-center"
+                          className="px-[2px] py-[5px] text-center"
                         >
                           <Cell cell={cell} />
                         </td>

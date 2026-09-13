@@ -43,10 +43,12 @@ Replaces the text links at the bottom of every page and the sticky "N of 16 pick
 ## 4. Everyone grid (`app/week/[n]/page.tsx`)
 
 Layout on phone (≤ 430px content):
-- Frozen left block, 140px total: **Name** column (96px) with the season total as a second line (`"Season {n}"`, 9.5px 400 `--ink-secondary`), then **Wk n** column (44px, Zilla 700 15px) with a 1px `--day-rule` right border and the existing 2px shadow. The standalone Season column is removed.
+- **Name** column (78px) is the only frozen column (`position: sticky; left: 0`, row background, 2px right shadow). First name left-aligned, season total right-aligned in the same cell (Zilla 400 11px `--ink-secondary`, tabular, min-width 16px) so the numbers form a column; header has "Name" left and "Ssn" right. Names longer than 7 characters are trimmed to 7 with an ellipsis (`Christina` → `Christi…`); full name in `title`.
+- **Wk n** column (44px, Zilla 700 15px, 1px `--day-rule` right border) sits first in the scrolling region, not frozen. The standalone Season column is removed.
+- Rows are single-line, 5px vertical padding, so 18 rows fit a phone screen without vertical scrolling.
 - Game columns 44px, scroll horizontally. A 36px right-edge fade (`transparent → --bg` at 80%) sits over the scroller so the clipped column reads as "more". No legend.
 - Column header: away over home, Zilla 700 9px, then a 6px status dot — `--ink` final, `--live` in progress, 1px `--ink-tertiary` outline open.
-- Zebra rows stay: odd rows `--desk`.
+- Zebra rows stay: odd rows `--desk`. The viewer's row overrides the zebra with `color-mix(in srgb, var(--accent) 18%, var(--bg))` across the full row (frozen cell included), a 3px `--accent` bar on the left edge of the frozen name cell (`box-shadow: inset 3px 0 0`), and the name in `--accent`; drop the "you" text label.
 - Sort: `weekPoints desc, seasonPoints desc, name asc` (currently falls to name after week points — add season points).
 
 Cell states (10px Zilla 700 pills, padding 3px 6px, radius 99px, `white-space: nowrap`):
@@ -74,4 +76,19 @@ Unchanged apart from the tab bar and the removal of the bottom text links.
 ## 7. Backlog
 
 - Navigation: done by this spec.
-- Child accounts without email: **WONT DO** until at least next season.
+- Weekly email report: unchanged, still open.
+- Child accounts without email: **WONT DO** until at least next season. Record this in `BACKLOG.md`.
+
+## 8. Build order and acceptance
+
+Suggested commits, each shippable on its own:
+
+1. **Tab bar + remove old nav/pill** (§1, §6). Accept: all three routes show the bar; picks page has no bottom pill; tapping a team still flashes ✓ Saved above the bar; Picks tab subtitle and progress track update on tap without reload; `/admin` still works by URL.
+2. **Week axis** (§2). Accept: arrows on `/week/[n]`; switching week on either page and tapping the other tab lands on the same week; Standings tab has no week param.
+3. **Pick card** (§3). Accept: no dashed/PICK state anywhere; no `+n` anywhere; locked cards show the bar with counts that sum to the number of pickers; tap toggles names; final cards colour the bar by result.
+4. **Grid** (§4). Accept on a 390px viewport: name column stays put on horizontal scroll, Wk scrolls; 18 rows fit without vertical scroll; viewer row tinted with left bar; sort verified with a manufactured tie on week points.
+5. **Palette retirement** (§5). Accept: `grep pickerPill` returns nothing; `/pill-palette.html` 404s.
+
+Files in this handoff:
+- `design/SPEC-2026-09-nav-grid.md` — this file
+- `design/Gilson Pool Canvas.dc.html` + `design/support.js` — updated canvas; turn 9 is the target state, turns 2–8 show the options considered and why each was rejected

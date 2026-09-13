@@ -6,10 +6,14 @@ works today.
 
 ---
 
-## Navigation design for standings and the weekly picks grid
+## ~~Navigation design for standings and the weekly picks grid~~ — done
 
-**What:** A real navigation pattern for moving between the three views — picks (`/`),
-the week grid (`/week/[n]`), and season standings (`/standings`).
+**Done, September 2026** — a fixed bottom tab bar (Picks · Everyone · Standings) with
+live subtitles, per `design/SPEC-2026-09-nav-grid.md`. `/admin` deliberately has no
+link; the commissioner types the URL.
+
+**What it was:** A real navigation pattern for moving between the three views — picks
+(`/`), the week grid (`/week/[n]`), and season standings (`/standings`).
 
 **Why:** Today these are plain text links stacked at the bottom of each page. You have to
 scroll past sixteen game cards to reach them, which is the wrong end of the page on a
@@ -51,7 +55,12 @@ look at the standings and a thing to argue about.
 
 ---
 
-## Child accounts without an email address
+## Child accounts without an email address — WON'T DO this season
+
+**Decision, September 2026:** not this season, revisit for 2027 at the earliest. The
+workaround holds: a parent signs the child up on a `+name` alias of their own gmail
+(`yourname+jack@gmail.com`), which delivers to the parent and counts as a separate
+player.
 
 **What:** Let kids play without having an email address of their own.
 
@@ -72,3 +81,41 @@ without inventing a fake address for them — which then fails on every reminder
   inheriting whatever falls out.
 - Keeps the pool honest about scale — this is a ~10 person family pool, so the simplest
   thing that works probably wins.
+
+---
+
+## Wildcard round as the money tiebreaker
+
+**What:** If the buy-in race ends tied, the pool's rule is that tied players keep picking
+through the Wildcard round of the playoffs, most correct picks takes the pot.
+
+**Why:** The rule was set when the buy-in was announced. The app can't run it yet — it
+only syncs the regular season (`season_type = 2`), and the picks page's week navigation
+stops at 18. Wildcard is `season_type = 3`, week 1.
+
+**Worth thinking about:**
+- `lib/season.ts` and the cron sync both assume regular season; both need to follow
+  ESPN's `season.type` past Week 18 rather than clamping.
+- Only tied buy-in players' Wildcard picks count for the pot, but there's no reason to
+  stop everyone else picking for fun.
+- Needs to be built and tested before the regular season ends — January is a bad time
+  to discover it doesn't work.
+
+---
+
+## Buy-in tracking
+
+**What:** A `bought_in` flag on members, a toggle in `/admin`, and a `$` marker next to
+those names in standings so the pot race is visible in the same table.
+
+**Why:** The pool has an optional $10 buy-in with its own winner (most correct picks
+among buy-in members). Today there's one standings table and the commissioner works the
+money race out by hand against a separate list.
+
+**Worth thinking about:**
+- Keep it one table. A second "money standings" page splits attention and the family
+  will ask which one is real.
+- The marker should be quiet — a small `$` after the name — not a colour, which is
+  reserved for the leader highlight and the viewer's row.
+- Opt-in closed on 2026-09-13; the flag is set once and rarely changes, so no need for
+  self-service.
