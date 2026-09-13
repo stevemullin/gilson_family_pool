@@ -77,7 +77,7 @@ export default async function WeekGridPage({
                       style={{ letterSpacing: ".12em" }}
                     >
                       <span>Name</span>
-                      <span>Ssn</span>
+                      <span>Wk {week}</span>
                     </span>
                   </th>
                   <th
@@ -88,7 +88,7 @@ export default async function WeekGridPage({
                     }}
                   >
                     <span className="overline" style={{ letterSpacing: ".12em" }}>
-                      Wk {week}
+                      Ssn
                     </span>
                   </th>
                   {games.map((g) => {
@@ -149,19 +149,19 @@ export default async function WeekGridPage({
                       >
                         <span className="flex items-baseline justify-between gap-[6px]">
                           <span>{trimName(row.name)}</span>
-                          <span
-                            className="display min-w-[16px] text-right text-[11px] font-normal tabular-nums"
-                            style={{ color: "var(--ink-secondary)" }}
-                          >
-                            {row.seasonPoints}
+                          <span className="display min-w-[16px] text-right text-[15px] font-bold tabular-nums">
+                            {row.weekPoints}
                           </span>
                         </span>
                       </th>
                       <td
-                        className="display px-1 py-[5px] text-center text-[15px] font-bold tabular-nums"
-                        style={{ borderRight: "1px solid var(--day-rule)" }}
+                        className="display px-1 py-[5px] text-center text-[13px] font-normal tabular-nums"
+                        style={{
+                          color: "var(--ink-secondary)",
+                          borderRight: "1px solid var(--day-rule)",
+                        }}
                       >
-                        {row.weekPoints}
+                        {row.seasonPoints}
                       </td>
                       {row.cells.map((cell) => (
                         <td
