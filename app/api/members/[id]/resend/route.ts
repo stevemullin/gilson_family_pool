@@ -26,7 +26,7 @@ export async function POST(
 
   let emailed = false;
   try {
-    emailed = await sendPersonalLink(member.email, member.name, member.token);
+    emailed = await sendPersonalLink(member.email, member.name, member.token, params.id);
   } catch (err) {
     console.error("[email] send failed", err);
   }

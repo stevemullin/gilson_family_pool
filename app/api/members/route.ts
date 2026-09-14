@@ -45,7 +45,7 @@ export async function POST(req: Request) {
 
   let emailed = false;
   try {
-    emailed = await sendPersonalLink(data.email, data.name, data.token);
+    emailed = await sendPersonalLink(data.email, data.name, data.token, data.id);
   } catch (err) {
     console.error("[email] send failed", err);
   }

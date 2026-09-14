@@ -24,7 +24,7 @@ export async function POST(req: Request) {
   const supabase = createServiceClient();
   const { data: existing } = await supabase
     .from("members")
-    .select("name, email, token")
+    .select("id, name, email, token")
     .eq("email", address)
     .maybeSingle();
 
@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     const { data: created, error } = await supabase
       .from("members")
       .insert({ name: displayName, email: address, token: generateToken() })
-      .select("name, email, token")
+      .select("id, name, email, token")
       .single();
 
     if (error) {
@@ -51,7 +51,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    await sendPersonalLink(member.email, member.name, member.token);
+    await sendPersonalLink(member.email, member.name, member.token, member.id);
   } catch (err) {
     console.error("[email] send failed", err);
   }

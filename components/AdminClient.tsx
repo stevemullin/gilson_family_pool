@@ -10,6 +10,14 @@ interface Props {
   games: Array<{ id: string; label: string; away: string; home: string }>;
   pickCounts: Record<string, number>;
   lastSync: string | null;
+  emailLog: Array<{
+    at: string;
+    kind: string;
+    who: string;
+    subject: string | null;
+    ok: boolean;
+    detail: string | null;
+  }>;
 }
 
 export default function AdminClient(props: Props) {
@@ -327,6 +335,54 @@ export default function AdminClient(props: Props) {
           </section>
         </div>
       </div>
+
+      {/* Answers "did so-and-so get their reminder" without leaving the page:
+          every send attempt and every morning the cron decided not to. */}
+      <section className="mt-4" style={cardStyle}>
+        <h2 className="display text-[16px] font-bold">Recent email</h2>
+        <p className="mt-1 text-[11px]" style={{ color: "var(--ink-tertiary)" }}>
+          Every send the app attempted and every time the 10am reminder chose not
+          to. Delivery itself is on the Resend dashboard.
+        </p>
+        {props.emailLog.length === 0 ? (
+          <p className="mt-3 text-[12px]" style={{ color: "var(--ink-secondary)" }}>
+            Nothing logged yet.
+          </p>
+        ) : (
+          <table className="mt-3 w-full text-[11.5px]">
+            <thead>
+              <tr style={{ color: "var(--ink-tertiary)" }}>
+                <th className="py-1 text-left font-normal">When (ET)</th>
+                <th className="py-1 text-left font-normal">What</th>
+                <th className="py-1 text-left font-normal">Who</th>
+                <th className="py-1 text-left font-normal">Result</th>
+              </tr>
+            </thead>
+            <tbody>
+              {props.emailLog.map((r, i) => (
+                <tr key={i} style={{ borderTop: "1px solid var(--hairline)" }}>
+                  <td className="whitespace-nowrap py-[5px] pr-3 tabular-nums" style={{ color: "var(--ink-secondary)" }}>
+                    {new Date(r.at).toLocaleString("en-US", {
+                      timeZone: "America/New_York",
+                      month: "short", day: "numeric", hour: "numeric", minute: "2-digit",
+                    })}
+                  </td>
+                  <td className="py-[5px] pr-3">
+                    {r.kind === "cron" ? "reminder cron" : r.kind === "reminder" ? "reminder" : "link"}
+                  </td>
+                  <td className="py-[5px] pr-3 font-bold">{r.who}</td>
+                  <td
+                    className="py-[5px]"
+                    style={{ color: r.ok ? "var(--correct-ink)" : r.kind === "cron" ? "var(--ink-secondary)" : "var(--wrong-ink)" }}
+                  >
+                    {r.kind === "cron" ? r.detail : r.ok ? "sent" : r.detail ?? "failed"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </section>
     </main>
   );
 }

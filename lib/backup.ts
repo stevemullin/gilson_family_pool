@@ -1,7 +1,7 @@
 import { gzipSync } from "zlib";
 import { createServiceClient } from "./supabase";
 
-export const BACKUP_TABLES = ["members", "games", "picks", "sync_state"] as const;
+export const BACKUP_TABLES = ["members", "games", "picks", "sync_state", "email_log"] as const;
 
 export interface Backup {
   taken_at: string;

@@ -28,6 +28,15 @@ export default async function AdminPage() {
       supabase.from("sync_state").select("last_score_sync_at").eq("id", 1).single(),
     ]);
 
+  // Newest first. Non-fatal if the table hasn't been created on this database
+  // yet — the page just shows an empty log.
+  const { data: emailRows } = await supabase
+    .from("email_log")
+    .select("at, kind, member_id, to_email, subject, ok, detail")
+    .order("at", { ascending: false })
+    .limit(30);
+  const nameById = new Map(((members ?? []) as Member[]).map((m) => [m.id, m.name]));
+
   const weekGames = (games ?? []) as Game[];
   let weekPicks: Pick[] = [];
   if (weekGames.length > 0) {
@@ -66,6 +75,17 @@ export default async function AdminPage() {
       }))}
       pickCounts={counts}
       lastSync={state?.last_score_sync_at ?? null}
+      emailLog={((emailRows ?? []) as Array<{
+        at: string; kind: string; member_id: string | null; to_email: string | null;
+        subject: string | null; ok: boolean; detail: string | null;
+      }>).map((r) => ({
+        at: r.at,
+        kind: r.kind,
+        who: r.member_id ? (nameById.get(r.member_id) ?? r.to_email ?? "") : (r.to_email ?? ""),
+        subject: r.subject,
+        ok: r.ok,
+        detail: r.detail,
+      }))}
     />
   );
 }

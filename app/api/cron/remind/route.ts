@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
 import { getCurrentSeasonWeek } from "@/lib/season";
-import { sendReminder } from "@/lib/email";
+import { sendReminder, logEmail } from "@/lib/email";
 import type { Game, Member, Pick } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -28,6 +28,7 @@ export async function GET(req: Request) {
     .single();
 
   if (state?.last_reminder_date === today) {
+    await logEmail({ kind: "cron", ok: false, detail: "skipped: already sent today" });
     return NextResponse.json({ ok: true, skipped: "already sent today" });
   }
 
@@ -48,12 +49,14 @@ export async function GET(req: Request) {
     )[0];
 
   if (!upcoming) {
+    await logEmail({ kind: "cron", ok: false, detail: `skipped: no upcoming games in week ${current.week}` });
     return NextResponse.json({ ok: true, skipped: "no upcoming games" });
   }
 
   const hoursOut =
     (new Date(upcoming.kickoff_at).getTime() - Date.now()) / 3_600_000;
   if (hoursOut > WINDOW_HOURS) {
+    await logEmail({ kind: "cron", ok: false, detail: `skipped: next kickoff ${hoursOut.toFixed(1)}h out (window ${WINDOW_HOURS}h)` });
     return NextResponse.json({ ok: true, skipped: "kickoff still far out" });
   }
 
@@ -94,13 +97,20 @@ export async function GET(req: Request) {
         member.name,
         member.token,
         missing,
-        new Date(upcoming.kickoff_at)
+        new Date(upcoming.kickoff_at),
+        member.id
       );
       sent.push(member.name);
     } catch (err) {
       console.error(`[cron/remind] ${member.email} failed`, err);
     }
   }
+
+  await logEmail({
+    kind: "cron",
+    ok: true,
+    detail: `ran: week ${current.week}, ${sent.length} reminder${sent.length === 1 ? "" : "s"} for ${upcoming.away_abbr}@${upcoming.home_abbr} in ${hoursOut.toFixed(1)}h`,
+  });
 
   return NextResponse.json({ ok: true, week: current.week, sent });
 }

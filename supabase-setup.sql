@@ -53,6 +53,19 @@ CREATE TABLE picks (
 );
 CREATE INDEX picks_game_idx ON picks(game_id);
 
+CREATE TABLE email_log (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  kind TEXT NOT NULL,                     -- 'personal_link' | 'reminder' | 'cron'
+  member_id UUID REFERENCES members(id) ON DELETE SET NULL,
+  to_email TEXT,
+  subject TEXT,
+  ok BOOLEAN NOT NULL,
+  resend_id TEXT,                         -- set when Resend accepted it
+  detail TEXT                             -- error message, or the cron's reason
+);
+CREATE INDEX email_log_at_idx ON email_log(at DESC);
+
 CREATE TABLE sync_state (
   id INTEGER PRIMARY KEY DEFAULT 1,
   last_score_sync_at TIMESTAMPTZ,
@@ -70,3 +83,4 @@ ALTER TABLE members    ENABLE ROW LEVEL SECURITY;
 ALTER TABLE games      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE picks      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sync_state ENABLE ROW LEVEL SECURITY;
+ALTER TABLE email_log  ENABLE ROW LEVEL SECURITY;
