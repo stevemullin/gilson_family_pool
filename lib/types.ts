@@ -7,6 +7,8 @@ export interface Member {
   token: string;
   is_admin: boolean;
   wants_reminders: boolean;
+  bought_in: boolean;
+  paid: boolean;
   created_at: string;
 }
 
@@ -52,10 +54,11 @@ export interface Pick {
  * entirely, not null, so a hidden pick cannot be serialized by accident.
  */
 export type PoolPick =
-  | { memberId: string; memberName: string; hasPicked: boolean }
+  | { memberId: string; memberName: string; boughtIn: boolean; hasPicked: boolean }
   | {
       memberId: string;
       memberName: string;
+      boughtIn: boolean;
       hasPicked: true;
       pickedAbbr: string;
       overridden: boolean;
@@ -64,6 +67,7 @@ export type PoolPick =
 export interface StandingRow {
   memberId: string;
   name: string;
+  boughtIn: boolean;
   correct: number;
   played: number;
   rank: number;

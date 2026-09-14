@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { teamColor, teamLogo } from "@/lib/teams";
+import Money from "./Money";
 import type { Game, PoolPick } from "@/lib/types";
 
 interface Props {
@@ -214,12 +215,13 @@ export default function PickCard({
     return myPick === abbr ? teamColor(abbr) : "var(--ink-secondary)";
   }
 
-  function roster(side: "away" | "home") {
+  function roster(side: "away" | "home"): Array<{ label: string; money: boolean }> {
     const abbr = side === "away" ? game.away_abbr : game.home_abbr;
-    const names = (side === "away" ? awayPickers : homePickers).map((p) =>
-      shortName(p.memberName)
-    );
-    if (myPick === abbr) return ["You", ...names];
+    const names = (side === "away" ? awayPickers : homePickers).map((p) => ({
+      label: shortName(p.memberName),
+      money: p.boughtIn,
+    }));
+    if (myPick === abbr) return [{ label: "You", money: false }, ...names];
     return names;
   }
 
@@ -303,21 +305,23 @@ export default function PickCard({
             >
               <span className="flex-1 text-left">
                 {roster("away").map((n, i) => (
-                  <span key={n + i}>
+                  <span key={n.label + i}>
                     {i > 0 && ", "}
-                    <span style={n === "You" ? { color: "var(--accent)", fontWeight: 700 } : undefined}>
-                      {n}
+                    <span style={n.label === "You" ? { color: "var(--accent)", fontWeight: 700 } : undefined}>
+                      {n.label}
                     </span>
+                    {n.money && <Money size={11} />}
                   </span>
                 ))}
               </span>
               <span className="flex-1 text-right">
                 {roster("home").map((n, i) => (
-                  <span key={n + i}>
+                  <span key={n.label + i}>
                     {i > 0 && ", "}
-                    <span style={n === "You" ? { color: "var(--accent)", fontWeight: 700 } : undefined}>
-                      {n}
+                    <span style={n.label === "You" ? { color: "var(--accent)", fontWeight: 700 } : undefined}>
+                      {n.label}
                     </span>
+                    {n.money && <Money size={11} />}
                   </span>
                 ))}
               </span>

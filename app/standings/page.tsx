@@ -5,6 +5,7 @@ import { createServiceClient } from "@/lib/supabase";
 import { computeStandings } from "@/lib/scoring";
 import { getNavData } from "@/lib/nav";
 import TabBar from "@/components/TabBar";
+import Money from "@/components/Money";
 import type { Game, Pick } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -24,12 +25,12 @@ export default async function StandingsPage() {
         .eq("season", current.season)
         .eq("season_type", current.seasonType),
       supabase.from("picks").select("*"),
-      supabase.from("members").select("id, name").order("name"),
+      supabase.from("members").select("id, name, bought_in").order("name"),
     ]);
 
   const gameList = (games ?? []) as Game[];
   const rows = computeStandings(
-    (members ?? []) as Array<{ id: string; name: string }>,
+    (members ?? []) as Array<{ id: string; name: string; bought_in: boolean }>,
     gameList,
     (picks ?? []) as Pick[]
   );
@@ -64,34 +65,43 @@ export default async function StandingsPage() {
       <ol className="mt-5">
         {rows.map((row) => {
           const leader = row.rank === 1;
+          const me = row.memberId === member.id;
+          // Your own row gets the same accent tint and left bar as the grid,
+          // which is louder than the old "you" label and findable at a glance.
+          const background = me
+            ? "color-mix(in srgb, var(--accent) 18%, var(--bg))"
+            : leader
+              ? "color-mix(in srgb, var(--leader) 6%, var(--bg))"
+              : undefined;
           return (
             <li
               key={row.memberId}
               className="flex items-center gap-3 px-2 py-[10px]"
               style={{
                 borderBottom: "1px solid var(--hairline)",
-                background: leader
-                  ? "color-mix(in srgb, var(--leader) 6%, var(--bg))"
-                  : undefined,
+                background,
+                boxShadow: me ? "inset 3px 0 0 var(--accent)" : undefined,
               }}
             >
               <span
                 className="display w-[26px] text-[15px] font-bold"
-                style={{ color: leader ? "var(--leader)" : "var(--ink-secondary)" }}
+                style={{
+                  color: me
+                    ? "var(--accent)"
+                    : leader
+                      ? "var(--leader)"
+                      : "var(--ink-secondary)",
+                }}
               >
                 {/* Ties share a rank on purpose — never broken by a secondary sort. */}
                 {row.tied ? `T${row.rank}` : row.rank}
               </span>
-              <span className="flex-1 text-[15px] font-bold">
+              <span
+                className="flex-1 text-[15px] font-bold"
+                style={{ color: me ? "var(--accent)" : undefined }}
+              >
                 {row.name}
-                {row.memberId === member.id && (
-                  <span
-                    className="ml-2 text-[10px] font-normal"
-                    style={{ color: "var(--ink-tertiary)" }}
-                  >
-                    you
-                  </span>
-                )}
+                {row.boughtIn && <Money size={12} />}
               </span>
               <span className="display text-[16px] font-bold tabular-nums">
                 {row.correct}–{row.played - row.correct}

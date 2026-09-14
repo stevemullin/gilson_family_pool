@@ -70,7 +70,11 @@ export default function TabBar({
         right: 0,
         bottom: 0,
         display: "flex",
-        height: 59,
+        // The safe-area inset is part of the bar's height, not carved out of
+        // it. With border-box sizing, `height: 59` plus a 34px inset on an
+        // iPhone left the tab links 25px tall — taps landed on padding and
+        // did nothing. Now the links get the full 59px above the inset.
+        height: "calc(59px + env(safe-area-inset-bottom))",
         paddingBottom: "env(safe-area-inset-bottom)",
         background: "var(--card)",
         borderTop: "1px solid var(--card-border)",

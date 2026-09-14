@@ -9,6 +9,8 @@ CREATE TABLE members (
   token TEXT UNIQUE NOT NULL,            -- 22-char URL-safe secret; the personal link
   is_admin BOOLEAN DEFAULT FALSE,        -- "commissioner"
   wants_reminders BOOLEAN DEFAULT TRUE,
+  bought_in BOOLEAN NOT NULL DEFAULT FALSE,  -- opted into the $10 pot; drives the 💰 marker
+  paid BOOLEAN NOT NULL DEFAULT FALSE,       -- the $10 has arrived; admin-only
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

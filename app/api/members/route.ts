@@ -15,7 +15,7 @@ export async function GET() {
   const supabase = createServiceClient();
   const { data } = await supabase
     .from("members")
-    .select("id, name, email, is_admin, wants_reminders")
+    .select("id, name, email, is_admin, wants_reminders, bought_in, paid")
     .order("name");
 
   return NextResponse.json(data ?? []);

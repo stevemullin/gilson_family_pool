@@ -71,7 +71,14 @@ Desktop (≥ 1000px) keeps the same table; the fade is unnecessary when all colu
 
 ## 6. Standings
 
-Unchanged apart from the tab bar and the removal of the bottom text links.
+- Viewer's row: same treatment as the grid — `color-mix(in srgb, var(--accent) 18%, var(--bg))` background, 3px `--accent` bar on the left edge, rank and name in `--accent`. Remove the "you" label.
+- Otherwise unchanged apart from the tab bar and the removal of the bottom text links.
+
+## 6a. Paid marker
+
+- New column `members.paid boolean not null default false`, toggled on `/admin` (a checkbox per member; no other UI writes it).
+- Where `paid` is true, render ` 💰` immediately after the member's name: the emoji at 11px (grid) / 12px (standings), `vertical-align: -1px`, no colour styling. Shown wherever a member name appears: grid name cell (inside the 7-char-trimmed name span, not counted toward the trim), standings row, and the expanded names list under a locked pick card.
+- Initial data: set `paid = true` for Steve, Amy, Ashley, Kai, Cason, Jamie, Brian, Chantel, Seneca, John, April, Pattie, Kate, Jess, Christina, KHazz, Kayden, Josiah, Mark.
 
 ## 7. Backlog
 

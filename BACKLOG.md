@@ -103,10 +103,13 @@ stops at 18. Wildcard is `season_type = 3`, week 1.
 
 ---
 
-## Buy-in tracking
+## ~~Buy-in tracking~~ — done
 
-**What:** A `bought_in` flag on members, a toggle in `/admin`, and a `$` marker next to
-those names in standings so the pot race is visible in the same table.
+**Done, 2026-09-14.** `bought_in` (drives a 💰 after the name in standings, the grid and
+card rosters) and `paid` (admin-only, shows who still owes), both toggled on `/admin`.
+
+**What it was:** A `bought_in` flag on members, a toggle in `/admin`, and a marker next
+to those names in standings so the pot race is visible in the same table.
 
 **Why:** The pool has an optional $10 buy-in with its own winner (most correct picks
 among buy-in members). Today there's one standings table and the commissioner works the

@@ -46,11 +46,15 @@ export async function getWeekView(
       .eq("season_type", seasonType)
       .eq("week", week)
       .order("kickoff_at", { ascending: true }),
-    supabase.from("members").select("id, name").order("name"),
+    supabase.from("members").select("id, name, bought_in").order("name"),
   ]);
 
   const gameList = (games ?? []) as Game[];
-  const memberList = (members ?? []) as Array<{ id: string; name: string }>;
+  const memberList = (members ?? []) as Array<{
+    id: string;
+    name: string;
+    bought_in: boolean;
+  }>;
   const gameIds = gameList.map((g) => g.id);
 
   let allPicks: Pick[] = [];
@@ -77,16 +81,16 @@ export async function getWeekView(
       .filter((m) => m.id !== viewerId)
       .map((m) => {
         const pick = forGame.find((p) => p.member_id === m.id);
+        const base = { memberId: m.id, memberName: m.name, boughtIn: m.bought_in };
         if (!pick) {
-          return { memberId: m.id, memberName: m.name, hasPicked: false };
+          return { ...base, hasPicked: false };
         }
         if (!revealed) {
           // Deliberately omits pickedAbbr. Do not "helpfully" add it back.
-          return { memberId: m.id, memberName: m.name, hasPicked: true };
+          return { ...base, hasPicked: true };
         }
         return {
-          memberId: m.id,
-          memberName: m.name,
+          ...base,
           hasPicked: true as const,
           pickedAbbr: pick.picked_abbr,
           overridden: pick.overridden_by !== null,
@@ -157,6 +161,7 @@ export interface GridCell {
 export interface GridRow {
   memberId: string;
   name: string;
+  boughtIn: boolean;
   isViewer: boolean;
   weekPoints: number;
   seasonPoints: number;
@@ -193,12 +198,16 @@ export async function getGridView(
         .select("*")
         .eq("season", season)
         .eq("season_type", seasonType),
-      supabase.from("members").select("id, name").order("name"),
+      supabase.from("members").select("id, name, bought_in").order("name"),
     ]);
 
   const games = (weekGames ?? []) as Game[];
   const allGames = (seasonGames ?? []) as Game[];
-  const memberList = (members ?? []) as Array<{ id: string; name: string }>;
+  const memberList = (members ?? []) as Array<{
+    id: string;
+    name: string;
+    bought_in: boolean;
+  }>;
 
   const { data: picksData } = await supabase.from("picks").select("*");
   const allPicks = (picksData ?? []) as Pick[];
@@ -250,6 +259,7 @@ export async function getGridView(
     return {
       memberId: m.id,
       name: m.name,
+      boughtIn: m.bought_in,
       isViewer,
       weekPoints,
       seasonPoints,

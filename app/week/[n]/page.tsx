@@ -5,6 +5,7 @@ import { getGridView, type GridCell } from "@/lib/picks";
 import { getNavData } from "@/lib/nav";
 import TabBar from "@/components/TabBar";
 import WeekHeader from "@/components/WeekHeader";
+import Money from "@/components/Money";
 
 export const dynamic = "force-dynamic";
 
@@ -148,7 +149,10 @@ export default async function WeekGridPage({
                         title={row.name}
                       >
                         <span className="flex items-baseline justify-between gap-[6px]">
-                          <span>{trimName(row.name)}</span>
+                          <span>
+                            {trimName(row.name)}
+                            {row.boughtIn && <Money size={11} />}
+                          </span>
                           <span className="display min-w-[16px] text-right text-[15px] font-bold tabular-nums">
                             {row.weekPoints}
                           </span>

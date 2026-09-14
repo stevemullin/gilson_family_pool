@@ -35,14 +35,22 @@ export function pointsFor(
  * product behavior from the design spec — never break a tie with a secondary sort.
  */
 export function computeStandings(
-  members: Array<{ id: string; name: string }>,
+  members: Array<{ id: string; name: string; bought_in?: boolean }>,
   games: Game[],
   picks: Pick[]
 ): StandingRow[] {
   const rows = members
     .map((m) => {
       const { correct, played } = pointsFor(m.id, games, picks);
-      return { memberId: m.id, name: m.name, correct, played, rank: 0, tied: false };
+      return {
+        memberId: m.id,
+        name: m.name,
+        boughtIn: m.bought_in ?? false,
+        correct,
+        played,
+        rank: 0,
+        tied: false,
+      };
     })
     .sort((a, b) => b.correct - a.correct || a.name.localeCompare(b.name));
 

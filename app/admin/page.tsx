@@ -55,6 +55,8 @@ export default async function AdminPage() {
         id: m.id,
         name: m.name,
         email: m.email,
+        boughtIn: m.bought_in,
+        paid: m.paid,
       }))}
       games={weekGames.map((g) => ({
         id: g.id,

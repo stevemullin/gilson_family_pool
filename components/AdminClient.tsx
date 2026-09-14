@@ -6,7 +6,7 @@ interface Props {
   adminId: string;
   adminName: string;
   week: number;
-  members: Array<{ id: string; name: string; email: string }>;
+  members: Array<{ id: string; name: string; email: string; boughtIn: boolean; paid: boolean }>;
   games: Array<{ id: string; label: string; away: string; home: string }>;
   pickCounts: Record<string, number>;
   lastSync: string | null;
@@ -22,6 +22,28 @@ export default function AdminClient(props: Props) {
 
   const total = props.games.length;
   const game = props.games.find((g) => g.id === overrideGame);
+
+  // Local mirror of the money flags so a checkbox flips immediately; the
+  // server write follows. Reloading on every tick would be jarring.
+  const [money, setMoney] = useState(
+    Object.fromEntries(props.members.map((m) => [m.id, { boughtIn: m.boughtIn, paid: m.paid }]))
+  );
+  const inForMoney = Object.values(money).filter((m) => m.boughtIn);
+  const owing = props.members.filter((m) => money[m.id].boughtIn && !money[m.id].paid);
+
+  async function setFlag(id: string, name: string, key: "boughtIn" | "paid", value: boolean) {
+    const prev = money[id];
+    setMoney((m) => ({ ...m, [id]: { ...m[id], [key]: value } }));
+    const res = await fetch(`/api/members/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ [key === "boughtIn" ? "bought_in" : "paid"]: value }),
+    });
+    if (!res.ok) {
+      setMoney((m) => ({ ...m, [id]: prev }));
+      setMessage(`Couldn't update ${name}.`);
+    }
+  }
 
   async function addMember(e: React.FormEvent) {
     e.preventDefault();
@@ -102,12 +124,24 @@ export default function AdminClient(props: Props) {
       <div className="mt-5 grid gap-4 md:grid-cols-[1.5fr_1fr]">
         <section style={cardStyle}>
           <h2 className="display text-[16px] font-bold">Members</h2>
+          <p className="mt-1 text-[12px]" style={{ color: "var(--ink-secondary)" }}>
+            {inForMoney.length} in for the money · ${inForMoney.length * 10} pot ·{" "}
+            {owing.length === 0 ? (
+              <span style={{ color: "var(--correct-ink)" }}>everyone&rsquo;s paid</span>
+            ) : (
+              <span style={{ color: "var(--wrong-ink)" }}>
+                {owing.length} still owe: {owing.map((m) => m.name.split(" ")[0]).join(", ")}
+              </span>
+            )}
+          </p>
           <table className="mt-3 w-full text-[12px]">
             <thead>
               <tr style={{ color: "var(--ink-tertiary)" }}>
                 <th className="py-1 text-left font-normal">Name</th>
                 <th className="py-1 text-left font-normal">Email</th>
                 <th className="py-1 text-center font-normal">Week picks</th>
+                <th className="py-1 text-center font-normal" title="Opted into the $10 pot">In for $</th>
+                <th className="py-1 text-center font-normal" title="The $10 has arrived">Paid</th>
                 <th />
               </tr>
             </thead>
@@ -128,6 +162,23 @@ export default function AdminClient(props: Props) {
                       }}
                     >
                       {made}/{total}
+                    </td>
+                    <td className="py-2 text-center">
+                      <input
+                        type="checkbox"
+                        aria-label={`${m.name} in for the money`}
+                        checked={money[m.id].boughtIn}
+                        onChange={(e) => setFlag(m.id, m.name, "boughtIn", e.target.checked)}
+                      />
+                    </td>
+                    <td className="py-2 text-center">
+                      <input
+                        type="checkbox"
+                        aria-label={`${m.name} has paid`}
+                        checked={money[m.id].paid}
+                        disabled={!money[m.id].boughtIn}
+                        onChange={(e) => setFlag(m.id, m.name, "paid", e.target.checked)}
+                      />
                     </td>
                     <td className="py-2 text-right whitespace-nowrap">
                       <button
