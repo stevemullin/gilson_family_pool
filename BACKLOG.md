@@ -122,3 +122,24 @@ money race out by hand against a separate list.
   reserved for the leader highlight and the viewer's row.
 - Opt-in closed on 2026-09-13; the flag is set once and rarely changes, so no need for
   self-service.
+
+---
+
+## Fail loudly when the database is unreachable
+
+**What:** When Supabase errors or times out, pages should say so instead of rendering
+as if the pool were empty.
+
+**Why:** On 2026-09-14 a Supabase API incident made every query return empty. The
+app rendered an empty grid, a blank standings table, and an admin summary reading
+"0 in for the money" — indistinguishable from real data, and it read as the database
+having been wiped. Nothing was lost, but it took a full dump to prove that. The nightly
+backup now exists because of it; this is the other half.
+
+**Worth thinking about:**
+- `createServiceClient()` callers mostly do `data ?? []`, which is exactly the
+  silent-empty behaviour. A thrown error caught by an `error.tsx` boundary would give
+  every page one honest failure state for free.
+- The picks page is the one that matters most: a user who sees no games at kickoff
+  time will assume the pool is broken, not that it's momentarily unreachable.
+- The admin summary should never show a zero it can't vouch for.

@@ -65,3 +65,20 @@ logged rather than sent.
 
 To point local development at production temporarily, `npx vercel env pull`
 — and expect the red banner.
+
+## Backups
+
+The free tier keeps none, so the commissioner's Mac pulls one every night from
+`GET /api/cron/backup?key=$CRON_SECRET`, which returns the whole database as
+gzipped JSON. `../backups/pull-backup.sh` does the pull; a launchd job runs it
+daily at 4am and catches up on wake if the Mac was asleep. The folder is
+outside the repo (backups carry member tokens) and already syncs to the cloud.
+
+To restore, turn a backup into SQL for the Supabase editor:
+
+```bash
+python3 ../backups/restore.py ../backups/pool-backup-2026-09-15.json.gz > restore.sql
+```
+
+It upserts on primary key, so running it against a live database only fills in
+what's missing.
