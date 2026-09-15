@@ -28,11 +28,37 @@ export async function fetchCurrentSeasonWeek(): Promise<SeasonWeek> {
  * The week to show by default: the latest week that has already started, or the
  * earliest week not yet finished. Falls back to ESPN when the table is empty.
  */
+/** How long after kickoff a game still counts as "now". NFL games run ~3h15m. */
+const GAME_WINDOW_MS = 4.5 * 60 * 60 * 1000;
+
 export async function getCurrentSeasonWeek(): Promise<SeasonWeek> {
   const supabase = createServiceClient();
   const now = new Date().toISOString();
 
-  // The week containing the next kickoff is the one people need to pick.
+  // A game that kicked off recently is still the week that matters — the last
+  // game of the week most of all. Without this, the moment Monday night kicks
+  // off "next kickoff" becomes Thursday, the app rolls to next week, and the
+  // one live game never gets its scores refreshed.
+  const { data: recent } = await supabase
+    .from("games")
+    .select("season, season_type, week, kickoff_at")
+    .lte("kickoff_at", now)
+    .order("kickoff_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (
+    recent &&
+    Date.now() - new Date(recent.kickoff_at).getTime() < GAME_WINDOW_MS
+  ) {
+    return {
+      season: recent.season,
+      week: recent.week,
+      seasonType: recent.season_type,
+    };
+  }
+
+  // Otherwise the week containing the next kickoff is the one people need to pick.
   const { data: upcoming } = await supabase
     .from("games")
     .select("season, season_type, week")

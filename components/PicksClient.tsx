@@ -35,9 +35,15 @@ export default function PicksClient(props: Props) {
     setPoolPicks(props.poolPicks);
   }, [props.games, props.myPicks, props.poolPicks]);
 
-  const anyLive = games.some((g) => g.state === "in");
+  // Poll while any game kicked off in the last few hours — judged by the
+  // clock, not by `state`. If a tab was opened before kickoff, `state` is
+  // still "pre" and would never flip on its own; the poll is what flips it.
+  const anyLive = games.some((g) => {
+    const since = Date.now() - new Date(g.kickoff_at).getTime();
+    return since >= 0 && since < 4.5 * 60 * 60 * 1000;
+  });
 
-  // Poll only while something is live; the server throttles the actual ESPN call.
+  // The server throttles the actual ESPN call to one a minute.
   useEffect(() => {
     if (!anyLive) return;
     const id = setInterval(async () => {
