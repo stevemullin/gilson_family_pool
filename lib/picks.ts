@@ -1,5 +1,6 @@
 import { createServiceClient } from "./supabase";
-import type { Game, Member, Pick, PoolPick } from "./types";
+import { loadSeasonData, type SeasonData } from "./season-data";
+import type { Game, Pick, PoolPick } from "./types";
 
 /**
  * A game is revealed purely by the clock: `kickoff_at <= now()`. Not "when it's live",
@@ -30,42 +31,16 @@ export interface WeekView {
  * MUST happen here, server-side, before anything is serialized. Hiding a pick in the
  * client is not equivalent and is not acceptable.
  */
-export async function getWeekView(
-  season: number,
+export function weekViewFrom(
+  data: SeasonData,
   week: number,
   viewerId: string,
-  seasonType = 2
-): Promise<WeekView> {
-  const supabase = createServiceClient();
-
-  const [{ data: games }, { data: members }] = await Promise.all([
-    supabase
-      .from("games")
-      .select("*")
-      .eq("season", season)
-      .eq("season_type", seasonType)
-      .eq("week", week)
-      .order("kickoff_at", { ascending: true }),
-    supabase.from("members").select("id, name, bought_in").order("name"),
-  ]);
-
-  const gameList = (games ?? []) as Game[];
-  const memberList = (members ?? []) as Array<{
-    id: string;
-    name: string;
-    bought_in: boolean;
-  }>;
-  const gameIds = gameList.map((g) => g.id);
-
-  let allPicks: Pick[] = [];
-  if (gameIds.length > 0) {
-    const { data: picks } = await supabase
-      .from("picks")
-      .select("*")
-      .in("game_id", gameIds);
-    allPicks = (picks ?? []) as Pick[];
-  }
-  const now = new Date();
+  now = new Date()
+): WeekView {
+  const gameList = data.games.filter((g) => g.week === week);
+  const memberList = data.members;
+  const gameIds = new Set(gameList.map((g) => g.id));
+  const allPicks = data.picks.filter((p) => gameIds.has(p.game_id));
 
   const myPicks: Record<string, string> = {};
   const poolPicks: Record<string, PoolPick[]> = {};
@@ -98,7 +73,23 @@ export async function getWeekView(
       });
   }
 
-  return { games: gameList, members: memberList, myPicks, poolPicks };
+  return {
+    games: gameList,
+    members: memberList.map((m) => ({ id: m.id, name: m.name })),
+    myPicks,
+    poolPicks,
+  };
+}
+
+/** Convenience for callers that don't already hold the season data. */
+export async function getWeekView(
+  season: number,
+  week: number,
+  viewerId: string,
+  seasonType = 2
+): Promise<WeekView> {
+  const data = await loadSeasonData();
+  return weekViewFrom(data, week, viewerId);
 }
 
 export type SavePickResult =
@@ -176,47 +167,17 @@ export interface GridRow {
  * off, or when the row is the viewer's own. Pre-kickoff cells expose `hasPicked` and
  * nothing else, so the grid cannot leak a pick through the DOM.
  */
-export async function getGridView(
-  season: number,
+export function gridViewFrom(
+  data: SeasonData,
   week: number,
   viewerId: string,
-  seasonType = 2
-): Promise<{ games: Game[]; rows: GridRow[] }> {
-  const supabase = createServiceClient();
+  now = new Date()
+): { games: Game[]; rows: GridRow[] } {
+  const games = data.games.filter((g) => g.week === week);
+  const gameById = new Map(data.games.map((g) => [g.id, g]));
 
-  const [{ data: weekGames }, { data: seasonGames }, { data: members }] =
-    await Promise.all([
-      supabase
-        .from("games")
-        .select("*")
-        .eq("season", season)
-        .eq("season_type", seasonType)
-        .eq("week", week)
-        .order("kickoff_at", { ascending: true }),
-      supabase
-        .from("games")
-        .select("*")
-        .eq("season", season)
-        .eq("season_type", seasonType),
-      supabase.from("members").select("id, name, bought_in").order("name"),
-    ]);
-
-  const games = (weekGames ?? []) as Game[];
-  const allGames = (seasonGames ?? []) as Game[];
-  const memberList = (members ?? []) as Array<{
-    id: string;
-    name: string;
-    bought_in: boolean;
-  }>;
-
-  const { data: picksData } = await supabase.from("picks").select("*");
-  const allPicks = (picksData ?? []) as Pick[];
-
-  const now = new Date();
-  const gameById = new Map(allGames.map((g) => [g.id, g]));
-
-  const rows: GridRow[] = memberList.map((m) => {
-    const mine = allPicks.filter((p) => p.member_id === m.id);
+  const rows: GridRow[] = data.members.map((m) => {
+    const mine = data.picks.filter((p) => p.member_id === m.id);
     const isViewer = m.id === viewerId;
 
     let weekPoints = 0;
@@ -276,4 +237,15 @@ export async function getGridView(
   );
 
   return { games, rows };
+}
+
+/** Convenience for callers that don't already hold the season data. */
+export async function getGridView(
+  season: number,
+  week: number,
+  viewerId: string,
+  seasonType = 2
+): Promise<{ games: Game[]; rows: GridRow[] }> {
+  const data = await loadSeasonData();
+  return gridViewFrom(data, week, viewerId);
 }

@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { getCurrentMember } from "@/lib/auth";
-import { getCurrentSeasonWeek } from "@/lib/season";
-import { getGridView, type GridCell } from "@/lib/picks";
-import { getNavData } from "@/lib/nav";
+import { loadSeasonData, currentWeekOf } from "@/lib/season-data";
+import { gridViewFrom, type GridCell } from "@/lib/picks";
+import { navDataFrom } from "@/lib/nav";
 import TabBar from "@/components/TabBar";
 import WeekHeader from "@/components/WeekHeader";
 import Money from "@/components/Money";
@@ -28,15 +28,12 @@ export default async function WeekGridPage({
 }: {
   params: { n: string };
 }) {
-  const member = await getCurrentMember();
+  const [member, data] = await Promise.all([getCurrentMember(), loadSeasonData()]);
   if (!member) redirect("/login");
 
-  const current = await getCurrentSeasonWeek();
-  const week = Number(params.n) || current.week;
-  const [{ games, rows }, nav] = await Promise.all([
-    getGridView(current.season, week, member.id, current.seasonType),
-    getNavData(member.id, current.season, week, current.seasonType),
-  ]);
+  const week = Number(params.n) || currentWeekOf(data);
+  const { games, rows } = gridViewFrom(data, week, member.id);
+  const nav = navDataFrom(data, member.id, week);
 
   const now = Date.now();
 

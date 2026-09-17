@@ -1,50 +1,25 @@
 import { redirect } from "next/navigation";
 import { getCurrentMember } from "@/lib/auth";
-import { getCurrentSeasonWeek } from "@/lib/season";
-import { createServiceClient } from "@/lib/supabase";
+import { loadSeasonData, currentWeekOf } from "@/lib/season-data";
 import { computeStandings } from "@/lib/scoring";
-import { getNavData } from "@/lib/nav";
+import { navDataFrom } from "@/lib/nav";
 import TabBar from "@/components/TabBar";
 import Money from "@/components/Money";
-import type { Game, Pick } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
 export default async function StandingsPage() {
-  const member = await getCurrentMember();
+  const [member, data] = await Promise.all([getCurrentMember(), loadSeasonData()]);
   if (!member) redirect("/login");
 
-  const current = await getCurrentSeasonWeek();
-  const supabase = createServiceClient();
-
-  const [{ data: games }, { data: picks }, { data: members }] =
-    await Promise.all([
-      supabase
-        .from("games")
-        .select("*")
-        .eq("season", current.season)
-        .eq("season_type", current.seasonType),
-      supabase.from("picks").select("*"),
-      supabase.from("members").select("id, name, bought_in").order("name"),
-    ]);
-
-  const gameList = (games ?? []) as Game[];
-  const rows = computeStandings(
-    (members ?? []) as Array<{ id: string; name: string; bought_in: boolean }>,
-    gameList,
-    (picks ?? []) as Pick[]
-  );
+  const week = currentWeekOf(data);
+  const gameList = data.games;
+  const rows = computeStandings(data.members, gameList, data.picks);
+  const nav = navDataFrom(data, member.id, week);
 
   const lastComplete = gameList
     .filter((g) => g.is_final)
     .reduce((max, g) => Math.max(max, g.week), 0);
-
-  const nav = await getNavData(
-    member.id,
-    current.season,
-    current.week,
-    current.seasonType
-  );
 
   return (
     <>
@@ -59,7 +34,7 @@ export default async function StandingsPage() {
         style={{ color: "var(--ink-secondary)" }}
       >
         Through Week {lastComplete || "—"}
-        {current.week > lastComplete ? ` · Week ${current.week} in progress` : ""}
+        {week > lastComplete ? ` · Week ${week} in progress` : ""}
       </p>
 
       <ol className="mt-5">

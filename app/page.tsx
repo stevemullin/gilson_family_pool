@@ -1,14 +1,12 @@
 import { redirect } from "next/navigation";
 import { getCurrentMember } from "@/lib/auth";
-import { getCurrentSeasonWeek } from "@/lib/season";
-import { getWeekView } from "@/lib/picks";
+import { loadSeasonData, currentWeekOf, weekNeedsRefresh } from "@/lib/season-data";
+import { weekViewFrom } from "@/lib/picks";
+import { navDataFrom } from "@/lib/nav";
 import { syncIfStale } from "@/lib/espn";
-import { createServiceClient } from "@/lib/supabase";
 import { pointsFor } from "@/lib/scoring";
 import PicksClient from "@/components/PicksClient";
 import TabBar from "@/components/TabBar";
-import { getNavData } from "@/lib/nav";
-import type { Game, Pick } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -17,52 +15,37 @@ export default async function PicksPage({
 }: {
   searchParams: { week?: string };
 }) {
-  const member = await getCurrentMember();
+  // One round trip: the session lookup and the whole season, in parallel.
+  const [member, initial] = await Promise.all([getCurrentMember(), loadSeasonData()]);
   if (!member) redirect("/login");
 
-  const current = await getCurrentSeasonWeek();
-  const week = Number(searchParams.week) || current.week;
+  let data = initial;
+  const week = Number(searchParams.week) || currentWeekOf(data);
 
-  // Refresh from ESPN only if the cache is stale; the throttle lives in syncIfStale.
-  try {
-    await syncIfStale(current.season, week, current.seasonType);
-  } catch (err) {
-    console.error("[sync] failed, serving cached games", err);
+  // Only go to ESPN when something in this week could actually have changed —
+  // a game live now or about to start. Most page loads happen between games
+  // and shouldn't pay for a sync they don't need.
+  if (weekNeedsRefresh(data, week)) {
+    try {
+      if (await syncIfStale(data.season, week, data.seasonType)) {
+        data = await loadSeasonData();
+      }
+    } catch (err) {
+      console.error("[sync] failed, serving cached games", err);
+    }
   }
 
-  const view = await getWeekView(
-    current.season,
-    week,
-    member.id,
-    current.seasonType
-  );
-
-  // Season record for the header pill.
-  const supabase = createServiceClient();
-  const [{ data: allGames }, { data: myPicks }] = await Promise.all([
-    supabase
-      .from("games")
-      .select("*")
-      .eq("season", current.season)
-      .eq("season_type", current.seasonType),
-    supabase.from("picks").select("*").eq("member_id", member.id),
-  ]);
-
-  const seasonRecord = pointsFor(
-    member.id,
-    (allGames ?? []) as Game[],
-    (myPicks ?? []) as Pick[]
-  );
-
-  const nav = await getNavData(member.id, current.season, week, current.seasonType);
+  const view = weekViewFrom(data, week, member.id);
+  const nav = navDataFrom(data, member.id, week);
+  const seasonRecord = pointsFor(member.id, data.games, data.picks);
 
   return (
     <>
       <PicksClient
         memberName={member.name}
-        season={current.season}
+        season={data.season}
         week={week}
-        seasonType={current.seasonType}
+        seasonType={data.seasonType}
         games={view.games}
         myPicks={view.myPicks}
         poolPicks={view.poolPicks}

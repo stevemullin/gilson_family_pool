@@ -1,6 +1,5 @@
-import { createServiceClient } from "./supabase";
 import { computeStandings } from "./scoring";
-import type { Game, Pick } from "./types";
+import { loadSeasonData, maxWeekOf, type SeasonData } from "./season-data";
 
 export interface NavData {
   week: number;
@@ -24,56 +23,29 @@ function ordinal(n: number): string {
 }
 
 /**
- * Everything the tab bar shows, gathered once per page render.
+ * Everything the tab bar shows, derived from data the page already holds.
  *
- * The subtitles are live data — how many picks are outstanding, which week
- * the grid is on, where you sit in the table — so the bar doubles as the
- * status line that used to live in the picks header.
+ * The subtitles are live — picks outstanding, which week the grid is on,
+ * where you sit in the table — so the bar doubles as the status line that
+ * used to live in the picks header.
  */
-export async function getNavData(
-  memberId: string,
-  season: number,
-  week: number,
-  seasonType = 2
-): Promise<NavData> {
-  const supabase = createServiceClient();
+export function navDataFrom(data: SeasonData, memberId: string, week: number): NavData {
+  const weekGameIds = new Set(data.games.filter((g) => g.week === week).map((g) => g.id));
 
-  const [{ data: seasonGames }, { data: allPicks }, { data: members }] =
-    await Promise.all([
-      supabase
-        .from("games")
-        .select("*")
-        .eq("season", season)
-        .eq("season_type", seasonType),
-      supabase.from("picks").select("*"),
-      supabase.from("members").select("id, name").order("name"),
-    ]);
-
-  const games = (seasonGames ?? []) as Game[];
-  const picks = (allPicks ?? []) as Pick[];
-  const weekGameIds = new Set(
-    games.filter((g) => g.week === week).map((g) => g.id)
-  );
-
-  const rows = computeStandings(
-    (members ?? []) as Array<{ id: string; name: string }>,
-    games,
-    picks
-  );
+  const rows = computeStandings(data.members, data.games, data.picks);
   const me = rows.find((r) => r.memberId === memberId);
 
   return {
     week,
-    maxWeek: Math.max(week, ...games.map((g) => g.week), 1),
-    picked: picks.filter(
-      (p) => p.member_id === memberId && weekGameIds.has(p.game_id)
-    ).length,
+    maxWeek: maxWeekOf(data, week),
+    picked: data.picks.filter((p) => p.member_id === memberId && weekGameIds.has(p.game_id)).length,
     games: weekGameIds.size,
-    standing: me
-      ? me.tied
-        ? `T${me.rank}`
-        : ordinal(me.rank)
-      : "—",
+    standing: me ? (me.tied ? `T${me.rank}` : ordinal(me.rank)) : "—",
     record: { correct: me?.correct ?? 0, played: me?.played ?? 0 },
   };
+}
+
+/** Convenience for callers that don't already hold the season data. */
+export async function getNavData(memberId: string, season: number, week: number, seasonType = 2): Promise<NavData> {
+  return navDataFrom(await loadSeasonData(), memberId, week);
 }
