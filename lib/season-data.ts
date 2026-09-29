@@ -16,6 +16,36 @@ export interface SeasonData {
   members: SeasonMember[];
 }
 
+/**
+ * Read a whole table, in pages.
+ *
+ * PostgREST answers an unbounded select with at most 1000 rows and says
+ * nothing about the rest. The pool crossed that line at 1099 picks, and the
+ * app quietly stopped seeing the newest ones — picks saved, then vanished on
+ * reload, and scoring and backups were being computed from a truncated set.
+ * Never select a growing table without paging it.
+ */
+export async function fetchAll<T>(
+  table: string,
+  columns = "*",
+  orderBy = "id"
+): Promise<T[]> {
+  const supabase = createServiceClient();
+  const PAGE = 1000;
+  const out: T[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await supabase
+      .from(table)
+      .select(columns)
+      .order(orderBy, { ascending: true })
+      .range(from, from + PAGE - 1);
+    if (error) throw new Error(`${table}: ${error.message}`);
+    const rows = (data ?? []) as T[];
+    out.push(...rows);
+    if (rows.length < PAGE) return out;
+  }
+}
+
 /** How long after kickoff a game still counts as "now". NFL games run ~3h15m. */
 export const GAME_WINDOW_MS = 4.5 * 60 * 60 * 1000;
 
@@ -29,15 +59,13 @@ export const GAME_WINDOW_MS = 4.5 * 60 * 60 * 1000;
  * every view derive from the same arrays in memory.
  */
 export async function loadSeasonData(): Promise<SeasonData> {
-  const supabase = createServiceClient();
-  const [{ data: games }, { data: picks }, { data: members }] =
-    await Promise.all([
-      supabase.from("games").select("*").order("kickoff_at", { ascending: true }),
-      supabase.from("picks").select("*"),
-      supabase.from("members").select("id, name, bought_in").order("name"),
-    ]);
+  const [games, picks, members] = await Promise.all([
+    fetchAll<Game>("games", "*", "kickoff_at"),
+    fetchAll<Pick>("picks"),
+    fetchAll<SeasonMember>("members", "id, name, bought_in", "name"),
+  ]);
 
-  const gameList = (games ?? []) as Game[];
+  const gameList = games;
   // The table only ever holds one season at a time; take the latest if not.
   const season = gameList.reduce((m, g) => Math.max(m, g.season), 0) || new Date().getFullYear();
   const seasonType = gameList.find((g) => g.season === season)?.season_type ?? 2;
@@ -46,8 +74,8 @@ export async function loadSeasonData(): Promise<SeasonData> {
     season,
     seasonType,
     games: gameList.filter((g) => g.season === season && g.season_type === seasonType),
-    picks: (picks ?? []) as Pick[],
-    members: (members ?? []) as SeasonMember[],
+    picks,
+    members,
   };
 }
 

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
 import { getCurrentSeasonWeek } from "@/lib/season";
+import { fetchAll } from "@/lib/season-data";
 import { sendReminder, logEmail } from "@/lib/email";
 import type { Game, Member, Pick } from "@/lib/types";
 
@@ -66,15 +67,13 @@ export async function GET(req: Request) {
     .update({ last_reminder_date: today })
     .eq("id", 1);
 
-  const [{ data: members }, { data: picks }] = await Promise.all([
+  // Picks is paged: games x members crosses PostgREST's 1000-row ceiling as
+  // the pool grows, and a short read here would mail people who had already
+  // picked. Members is small and filtered, so a plain select is fine.
+  const [{ data: members }, allPicks] = await Promise.all([
     supabase.from("members").select("*").eq("wants_reminders", true),
-    supabase
-      .from("picks")
-      .select("*")
-      .in("game_id", weekGames.map((g) => g.id)),
+    fetchAll<Pick>("picks"),
   ]);
-
-  const allPicks = (picks ?? []) as Pick[];
   const sent: string[] = [];
 
   // Only games that can still be picked. Counting every game in the week would nag

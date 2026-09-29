@@ -23,11 +23,23 @@ export async function takeBackup(): Promise<Backup> {
   const tables = {} as Backup["tables"];
   const counts = {} as Backup["counts"];
 
+  // Paged for the same reason loadSeasonData is: an unbounded select stops at
+  // 1000 rows, so a backup of a larger table would silently be a partial one.
   for (const table of BACKUP_TABLES) {
-    const { data, error } = await supabase.from(table).select("*");
-    if (error) throw new Error(`${table}: ${error.message}`);
-    tables[table] = data ?? [];
-    counts[table] = tables[table].length;
+    const PAGE = 1000;
+    const rows: unknown[] = [];
+    for (let from = 0; ; from += PAGE) {
+      const { data, error } = await supabase
+        .from(table)
+        .select("*")
+        .order("id", { ascending: true })
+        .range(from, from + PAGE - 1);
+      if (error) throw new Error(`${table}: ${error.message}`);
+      rows.push(...(data ?? []));
+      if ((data ?? []).length < PAGE) break;
+    }
+    tables[table] = rows;
+    counts[table] = rows.length;
   }
 
   return { taken_at: new Date().toISOString(), counts, tables };
