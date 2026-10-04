@@ -82,3 +82,20 @@ python3 ../backups/restore.py ../backups/pool-backup-2026-09-15.json.gz > restor
 
 It upserts on primary key, so running it against a live database only fills in
 what's missing.
+
+## Households
+
+A parent can pick for their kids without logging out. `guardianships` is a
+many-to-many table — two of the pool's three households have both parents
+managing the same children — and a chip row on the picks page switches who the
+session is acting as. The acting member is re-validated against the table on
+every request, so the cookie can't be edited into someone else's account; admin
+rights stay with the account, never the acted-as member.
+
+To set one up:
+
+```sql
+insert into guardianships (guardian_id, member_id)
+select g.id, k.id from members g, members k
+where g.email = 'parent@example.com' and k.email in ('kid1@example.com', 'kid2@example.com');
+```

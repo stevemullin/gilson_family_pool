@@ -60,3 +60,9 @@ begin
   return format('Seeded %s picks across %s games.', filled, total_games);
 end;
 $$;
+
+-- A household, so the parent/child switcher has something to exercise locally.
+insert into guardianships (guardian_id, member_id)
+select g.id, k.id
+from members g, members k
+where g.name = 'Dev Commissioner' and k.name in ('Kai Lindqvist', 'Cason Doyle');

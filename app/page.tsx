@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
-import { getCurrentMember } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { loadSeasonData, currentWeekOf, weekNeedsRefresh } from "@/lib/season-data";
 import { weekViewFrom } from "@/lib/picks";
 import { navDataFrom } from "@/lib/nav";
 import { syncIfStale } from "@/lib/espn";
 import { pointsFor } from "@/lib/scoring";
 import PicksClient from "@/components/PicksClient";
+import MemberSwitcher from "@/components/MemberSwitcher";
 import TabBar from "@/components/TabBar";
 
 export const dynamic = "force-dynamic";
@@ -16,8 +17,10 @@ export default async function PicksPage({
   searchParams: { week?: string };
 }) {
   // One round trip: the session lookup and the whole season, in parallel.
-  const [member, initial] = await Promise.all([getCurrentMember(), loadSeasonData()]);
-  if (!member) redirect("/login");
+  const [session, initial] = await Promise.all([getSession(), loadSeasonData()]);
+  if (!session) redirect("/login");
+  // Everything below is from the acted-as member's point of view.
+  const member = session.viewer;
 
   let data = initial;
   const week = Number(searchParams.week) || currentWeekOf(data);
@@ -42,6 +45,7 @@ export default async function PicksPage({
   return (
     <>
       <PicksClient
+        switcher={<MemberSwitcher session={session} returnTo={`/?week=${week}`} />}
         memberName={member.name}
         season={data.season}
         week={week}

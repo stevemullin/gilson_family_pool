@@ -55,12 +55,13 @@ look at the standings and a thing to argue about.
 
 ---
 
-## Child accounts without an email address — WON'T DO this season
+## ~~Child accounts without an email address~~ — solved differently
 
-**Decision, September 2026:** not this season, revisit for 2027 at the earliest. The
-workaround holds: a parent signs the child up on a `+name` alias of their own gmail
-(`yourname+jack@gmail.com`), which delivers to the parent and counts as a separate
-player.
+**Resolved, October 2026, from the other end.** The kids already had accounts; the
+problem was never signup, it was that a parent had to log out and back in to use
+them. Guardianships let one session act as another member, so a parent switches with
+a tap. Child accounts still need *an* email address at signup, which no longer
+matters in practice.
 
 **What:** Let kids play without having an email address of their own.
 

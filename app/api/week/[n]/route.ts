@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getCurrentMember } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { loadSeasonData, currentWeekOf, weekNeedsRefresh } from "@/lib/season-data";
 import { weekViewFrom } from "@/lib/picks";
 import { syncIfStale } from "@/lib/espn";
@@ -10,8 +10,9 @@ export async function GET(
   _req: Request,
   { params }: { params: { n: string } }
 ) {
-  const [member, initial] = await Promise.all([getCurrentMember(), loadSeasonData()]);
-  if (!member) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  const [session, initial] = await Promise.all([getSession(), loadSeasonData()]);
+  if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  const member = session.viewer;
 
   let data = initial;
   const week = Number(params.n) || currentWeekOf(data);

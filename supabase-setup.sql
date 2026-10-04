@@ -53,6 +53,15 @@ CREATE TABLE picks (
 );
 CREATE INDEX picks_game_idx ON picks(game_id);
 
+CREATE TABLE guardianships (
+  guardian_id UUID NOT NULL REFERENCES members(id) ON DELETE CASCADE,
+  member_id   UUID NOT NULL REFERENCES members(id) ON DELETE CASCADE,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (guardian_id, member_id),
+  CONSTRAINT guardianship_not_self CHECK (guardian_id <> member_id)
+);
+CREATE INDEX guardianships_guardian_idx ON guardianships(guardian_id);
+
 CREATE TABLE email_log (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -83,4 +92,5 @@ ALTER TABLE members    ENABLE ROW LEVEL SECURITY;
 ALTER TABLE games      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE picks      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sync_state ENABLE ROW LEVEL SECURITY;
-ALTER TABLE email_log  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE email_log      ENABLE ROW LEVEL SECURITY;
+ALTER TABLE guardianships  ENABLE ROW LEVEL SECURITY;

@@ -1,16 +1,18 @@
 import { redirect } from "next/navigation";
-import { getCurrentMember } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { loadSeasonData, currentWeekOf } from "@/lib/season-data";
 import { computeStandings } from "@/lib/scoring";
 import { navDataFrom } from "@/lib/nav";
 import TabBar from "@/components/TabBar";
+import MemberSwitcher from "@/components/MemberSwitcher";
 import Money from "@/components/Money";
 
 export const dynamic = "force-dynamic";
 
 export default async function StandingsPage() {
-  const [member, data] = await Promise.all([getCurrentMember(), loadSeasonData()]);
-  if (!member) redirect("/login");
+  const [session, data] = await Promise.all([getSession(), loadSeasonData()]);
+  if (!session) redirect("/login");
+  const member = session.viewer;
 
   const week = currentWeekOf(data);
   const gameList = data.games;

@@ -1,7 +1,7 @@
 import { gzipSync } from "zlib";
 import { createServiceClient } from "./supabase";
 
-export const BACKUP_TABLES = ["members", "games", "picks", "sync_state", "email_log"] as const;
+export const BACKUP_TABLES = ["members", "games", "picks", "sync_state", "email_log", "guardianships"] as const;
 
 export interface Backup {
   taken_at: string;
@@ -32,7 +32,7 @@ export async function takeBackup(): Promise<Backup> {
       const { data, error } = await supabase
         .from(table)
         .select("*")
-        .order("id", { ascending: true })
+        .order(table === "guardianships" ? "guardian_id" : "id", { ascending: true })
         .range(from, from + PAGE - 1);
       if (error) throw new Error(`${table}: ${error.message}`);
       rows.push(...(data ?? []));

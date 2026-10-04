@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
-import { getCurrentMember } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { savePick } from "@/lib/picks";
 
 export const dynamic = "force-dynamic";
 
 export async function PUT(req: Request) {
-  const member = await getCurrentMember();
-  if (!member) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  // The pick belongs to whoever the session is acting as, which getSession()
+  // has already validated against the guardianships table.
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  const member = session.viewer;
 
   const { gameId, team } = await req.json();
   if (!gameId || !team) {

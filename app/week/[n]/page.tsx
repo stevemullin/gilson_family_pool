@@ -1,10 +1,11 @@
 import { redirect } from "next/navigation";
-import { getCurrentMember } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { loadSeasonData, currentWeekOf } from "@/lib/season-data";
 import { gridViewFrom, type GridCell } from "@/lib/picks";
 import { navDataFrom } from "@/lib/nav";
 import TabBar from "@/components/TabBar";
 import WeekHeader from "@/components/WeekHeader";
+import MemberSwitcher from "@/components/MemberSwitcher";
 import Money from "@/components/Money";
 
 export const dynamic = "force-dynamic";
@@ -28,8 +29,9 @@ export default async function WeekGridPage({
 }: {
   params: { n: string };
 }) {
-  const [member, data] = await Promise.all([getCurrentMember(), loadSeasonData()]);
-  if (!member) redirect("/login");
+  const [session, data] = await Promise.all([getSession(), loadSeasonData()]);
+  if (!session) redirect("/login");
+  const member = session.viewer;
 
   const week = Number(params.n) || currentWeekOf(data);
   const { games, rows } = gridViewFrom(data, week, member.id);
@@ -50,6 +52,7 @@ export default async function WeekGridPage({
           >
             Picks stay hidden until each game kicks off.
           </p>
+          <MemberSwitcher session={session} returnTo={`/week/${week}`} />
         </WeekHeader>
 
         {/* The fade sits over the scroller's right edge so a clipped column

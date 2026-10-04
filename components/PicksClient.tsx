@@ -17,6 +17,8 @@ interface Props {
   poolPicks: Record<string, PoolPick[]>;
   seasonRecord: { correct: number; played: number };
   maxWeek: number;
+  /** Parent/child switcher, rendered by the server page. */
+  switcher?: React.ReactNode;
 }
 
 export default function PicksClient(props: Props) {
@@ -144,6 +146,8 @@ export default function PicksClient(props: Props) {
             {props.seasonRecord.played - props.seasonRecord.correct}
           </span>
         </div>
+
+        {props.switcher}
 
         {/* Standing reassurance. The empty-state banner says this too, but it
             disappears after the first pick — which is exactly when someone
