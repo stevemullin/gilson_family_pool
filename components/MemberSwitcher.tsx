@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { Session } from "@/lib/auth";
 
 /**
@@ -39,7 +38,12 @@ export default function MemberSwitcher({
         {people.map((p) => {
           const current = p.id === session.viewer.id;
           return (
-            <Link
+            // A plain anchor, not next/link, on purpose. Switching sets a
+            // cookie the server reads on render; a client-side navigation
+            // applies the cookie but then serves the page from Next's router
+            // cache, so the switch looks like it did nothing. A full
+            // navigation re-renders against the new cookie.
+            <a
               key={p.id}
               href={`/act/${p.id}?next=${next}`}
               aria-current={current ? "true" : undefined}
@@ -55,7 +59,7 @@ export default function MemberSwitcher({
               }
             >
               {p.self ? "Me" : p.name.split(" ")[0]}
-            </Link>
+            </a>
           );
         })}
       </div>
