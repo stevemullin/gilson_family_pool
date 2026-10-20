@@ -161,7 +161,14 @@ ALTER TABLE picks      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sync_state ENABLE ROW LEVEL SECURITY;
 ```
 
-**Create no anon policies on any table.** Every read and write goes through a Next.js route
+**No Data API access for `anon` at all, and no anon policies on any table.**
+Only `service_role` is granted on these tables; `anon` and `authenticated` are
+explicitly revoked, and schema default privileges keep future tables the same way.
+Supabase's old auto-grant gave `anon` full write privileges on everything, leaving
+RLS-with-no-policies as the only thing between the public and the data — one stray
+`create policy` from exposure. Removing the grant removes the footgun. Note that
+from 2026-10-30 Supabase stops auto-granting new tables anyway, so **any new table
+needs an explicit grant** or every query against it fails with "permission denied". Every read and write goes through a Next.js route
 handler holding the service-role key, because that server layer is the only place that
 knows the kickoff-time visibility rule. This differs on purpose from the golf app, which
 grants `USING (true)` public reads — here, a public read policy on `picks` would defeat the

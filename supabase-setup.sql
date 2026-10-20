@@ -94,3 +94,24 @@ ALTER TABLE picks      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sync_state ENABLE ROW LEVEL SECURITY;
 ALTER TABLE email_log      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE guardianships  ENABLE ROW LEVEL SECURITY;
+
+-- Data API grants. From 2026-10-30 Supabase no longer auto-grants access to
+-- new tables in `public`, so these are required rather than implied. Only
+-- service_role gets anything: the app talks to the database exclusively
+-- through the service-role key from server-side code, and leaving anon with
+-- write grants (the old default) meant a single stray policy could expose
+-- every table.
+DO $$
+DECLARE t TEXT;
+BEGIN
+  FOREACH t IN ARRAY ARRAY['members','games','picks','sync_state','email_log','guardianships']
+  LOOP
+    EXECUTE FORMAT('GRANT SELECT, INSERT, UPDATE, DELETE ON public.%I TO service_role', t);
+    EXECUTE FORMAT('REVOKE ALL ON public.%I FROM anon, authenticated', t);
+  END LOOP;
+END $$;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+  GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+  REVOKE ALL ON TABLES FROM anon, authenticated;
