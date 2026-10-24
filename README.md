@@ -38,9 +38,22 @@ Development runs against a Supabase stack in Docker, never the live pool.
 Production credentials live only in Vercel.
 
 ```bash
-supabase start          # first run pulls ~2GB of images
+supabase start          # ~4GB of images on a first run
 supabase db reset       # applies the schema and seeds 18 fictional members
 npm run dev
+```
+
+Storage, realtime, analytics and edge functions are disabled in
+`supabase/config.toml` — this app uses none of them, and they accounted for
+about 3.9GB of images and four containers idling in the background. Postgres,
+PostgREST, Kong, auth, Studio and the mail catcher remain. Re-enable any of
+them there if a feature ever needs one.
+
+Stop the stack when you're done with it; it otherwise restarts with Docker and
+sits idle forever:
+
+```bash
+supabase stop
 ```
 
 Sign in as the seeded commissioner — this also triggers the first ESPN sync,
